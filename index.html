@@ -1,0 +1,162 @@
+<h1 id="pathogenseq-scripts">pathogenseq-scripts</h1>
+<h2 id="installation">Installation</h2>
+<h4 id="prerequisites-">Prerequisites:</h4>
+<ul>
+<li>java&lt;br&gt;</li>
+<li>perl&lt;br&gt;</li>
+<li>samtools&lt;br&gt;</li>
+<li>bwa&lt;br&gt;</li>
+<li>vcftools&lt;br&gt;</li>
+<li>R&lt;br&gt;</li>
+</ul>
+<h4 id="perl-modules-">Perl modules:</h4>
+<ul>
+<li>Statistics::Lite&lt;br&gt;</li>
+<li>Term::ProgresBar</li>
+</ul>
+<p>These programs and perl modules must be installed for full functionality of the pipeline. Additionally the following programs and scripts much also be added to the path, however we provide a script to download the latest versions:&lt;br&gt;</p>
+<ul>
+<li>trimmomatic&lt;br&gt;</li>
+<li>sambamba&lt;br&gt;</li>
+<li>vcfutils.pl&lt;br&gt;</li>
+<li>GEM-library&lt;br&gt;</li>
+<li>bedops&lt;br&gt;</li>
+</ul>
+<h4 id="to-install-please-follow-these-instructions-">To install please follow these instructions:</h4>
+<pre><code>git clone https://github.com/jodyphelan/pathogenseq-scripts.git
+cd pathogenseq-scripts
+bash downloadPrograms.sh
+</code></pre><h5 id="before-using-the-pipeline-add-the-scripts-and-programs-to-the-path-each-time-you-start-a-new-session-">Before using the pipeline add the scripts and programs to the path each time you start a new session:</h5>
+<pre><code>source add_to_path.source 
+</code></pre><h2 id="example-usage-">Example usage:</h2>
+<p>To map fastq files to a reference and perform variant calling we can use the <code>map_call_snps_0.2.pl</code> script. This can be done either step by step using the different filtering modules individually or can be performed in one run. A simple directory structure and naming scheme must be followed in order for the pipeline to run correctly. Make a directory called <code>fastq</code> and place the reads using the naming scheme <code>&lt;sample-id&gt;_1.fastq.gz</code> and <code>&lt;sample-id&gt;_2.fastq.gz</code> for paired end reads. Navigate back to the directory containing the fastq folder and you are ready to run the pipeline:&lt;br&gt;</p>
+<pre><code>map_call_snps.pl all &lt;sample&gt; &lt;ref&gt; &lt;threads&gt; &lt;working_dir&gt; &lt;storage_dir&gt;
+</code></pre><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sample</td>
+<td>The sample ID used in naming the fastq files</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>The reference fasta</td>
+</tr>
+<tr>
+<td>threads</td>
+<td>The number of threads to be used</td>
+</tr>
+<tr>
+<td>working_dir</td>
+<td>The directory used to process data and store temporary files (most cases the current directory)</td>
+</tr>
+<tr>
+<td>storage_dir</td>
+<td>The directory used to store data (most cases the current directory)</td>
+</tr>
+</tbody>
+</table>
+<p>The final structure will look like the following:</p>
+<pre><code>base_dir/
+├──fastq/
+│  ├──sample1_1.fastq
+│  └──sample1_2.fastq
+├──coverage/
+│  └──sample1.coverage.gz
+├──vcf/
+│  └──sample1.filt.vcf.gz
+└──bam/
+   └──sample1.bam
+</code></pre><p>To create a SNP matrix from the VCFs and coverage files we will use the <code>filter_SNPs_MT_0.2.pl</code> script. This can be done either step by step using the different filtering modules individually or can be performed in one run. Before we can run the main pipeline we should create a mappability file listing the unique regions in the genome:&lt;br&gt;</p>
+<pre><code>filter_SNPs_MT_0.2.pl mappability &lt;ref&gt; &lt;kmer&gt; &lt;threads&gt;
+</code></pre><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ref</td>
+<td>The reference fasta to use</td>
+</tr>
+<tr>
+<td>kmer</td>
+<td>The size of the kmer to look for uniqueness (should be roughly the same as the read length)</td>
+</tr>
+<tr>
+<td>threads</td>
+<td>Number of threads to use</td>
+</tr>
+</tbody>
+</table>
+<p>This will create a file named mappability.bed in the current directory which will feed into the pipeline. We will also be filtering based on the total coverage over all samples. Because non-nuclear DNA will have higher coverage we do not want to filter these based on the same cut-offs. We must give a file listing all the chromosomes (one per line) which we would like to apply this filtering to.<br>The main command requires a number of different parameters which will be used during different stages in the filtering process: &lt;br&gt;</p>
+<pre><code>filter_SNPs_MT_0.2.pl all &lt;sample_file&gt; &lt;base_dir&gt; &lt;%cov&gt; &lt;min_cov&gt; &lt;threads&gt; &lt;samtools|gatk|both&gt; &lt;mappability_file&gt; &lt;nuclear_chromosomes&gt;
+</code></pre><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sample_file</td>
+<td>File containing the names of all samples (one per line). The naming of vcf and coverage files must be consistent with these names</td>
+</tr>
+<tr>
+<td>base_dir</td>
+<td>Directory containing two directories names ‘coverage’ and ‘vcf’</td>
+</tr>
+<tr>
+<td>%cov</td>
+<td>The minimum allelic frequency of the alternate allele for it to be called</td>
+</tr>
+<tr>
+<td>min_cov</td>
+<td>Minimum coverage for a position to be considered. If lower it will be marked as missing</td>
+</tr>
+<tr>
+<td>threads</td>
+<td>Number of threads to use during processing</td>
+</tr>
+<tr>
+<td>samtools\</td>
+<td>gatk\</td>
+<td>both</td>
+<td>Which source of VCFs to use. Samtools should have the extension .filt.vcf.gz GATK should have the extension .gatk.raw.vcf.gz. Using both will use the union of the results.</td>
+</tr>
+<tr>
+<td>mappability_file</td>
+<td>The mappability file to use. If you created this using mappability function of the script is will be names mappability.bed.</td>
+</tr>
+<tr>
+<td>nuclear_chromosomes</td>
+<td>The chromosomes which should use the total coverage filter</td>
+</tr>
+</tbody>
+</table>
+<p>This will perform several filters on the dataset interactively. For each of these steps a graph plot will appear and ask you to set cut-off values. Please click (anywhere on the plot) at the corresponding value you would like to set the cut-off at using the indicated axis:&lt;br&gt;</p>
+<ul>
+<li>Filtering samples with large number of missing or mixed calls and those with low median depth<ul>
+<li>A plot of the number of missing calls as a proportion of the total number of SNP positions. (Y-axis)</li>
+<li>A plot of the number of mixed calls as a proportion of the total number of SNP positions (Y-axis)</li>
+<li>A plot of the number of the median depth per sample (Y-axis)</li>
+</ul>
+</li>
+<li>Filtering out SNPs with large number of missing or mixed calls<ul>
+<li>A plot of the number of missing calls as a proportion of call per SNP. (Y-axis)</li>
+<li>A plot of the number of mixed calls as a proportion of call per SNP. (Y-axis)</li>
+</ul>
+</li>
+<li>Filtering out SNPs with low coverage over all samples<ul>
+<li>A plot containing the density function of the total coverage per SNP (X-axis)</li>
+</ul>
+</li>
+</ul>
