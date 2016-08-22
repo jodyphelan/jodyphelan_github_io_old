@@ -1,162 +1,373 @@
-<h1 id="pathogenseq-scripts">pathogenseq-scripts</h1>
-<h2 id="installation">Installation</h2>
-<h4 id="prerequisites-">Prerequisites:</h4>
-<ul>
-<li>java&lt;br&gt;</li>
-<li>perl&lt;br&gt;</li>
-<li>samtools&lt;br&gt;</li>
-<li>bwa&lt;br&gt;</li>
-<li>vcftools&lt;br&gt;</li>
-<li>R&lt;br&gt;</li>
-</ul>
-<h4 id="perl-modules-">Perl modules:</h4>
-<ul>
-<li>Statistics::Lite&lt;br&gt;</li>
-<li>Term::ProgresBar</li>
-</ul>
-<p>These programs and perl modules must be installed for full functionality of the pipeline. Additionally the following programs and scripts much also be added to the path, however we provide a script to download the latest versions:&lt;br&gt;</p>
-<ul>
-<li>trimmomatic&lt;br&gt;</li>
-<li>sambamba&lt;br&gt;</li>
-<li>vcfutils.pl&lt;br&gt;</li>
-<li>GEM-library&lt;br&gt;</li>
-<li>bedops&lt;br&gt;</li>
-</ul>
-<h4 id="to-install-please-follow-these-instructions-">To install please follow these instructions:</h4>
-<pre><code>git clone https://github.com/jodyphelan/pathogenseq-scripts.git
-cd pathogenseq-scripts
-bash downloadPrograms.sh
-</code></pre><h5 id="before-using-the-pipeline-add-the-scripts-and-programs-to-the-path-each-time-you-start-a-new-session-">Before using the pipeline add the scripts and programs to the path each time you start a new session:</h5>
-<pre><code>source add_to_path.source 
-</code></pre><h2 id="example-usage-">Example usage:</h2>
-<p>To map fastq files to a reference and perform variant calling we can use the <code>map_call_snps_0.2.pl</code> script. This can be done either step by step using the different filtering modules individually or can be performed in one run. A simple directory structure and naming scheme must be followed in order for the pipeline to run correctly. Make a directory called <code>fastq</code> and place the reads using the naming scheme <code>&lt;sample-id&gt;_1.fastq.gz</code> and <code>&lt;sample-id&gt;_2.fastq.gz</code> for paired end reads. Navigate back to the directory containing the fastq folder and you are ready to run the pipeline:&lt;br&gt;</p>
-<pre><code>map_call_snps.pl all &lt;sample&gt; &lt;ref&gt; &lt;threads&gt; &lt;working_dir&gt; &lt;storage_dir&gt;
-</code></pre><table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>sample</td>
-<td>The sample ID used in naming the fastq files</td>
-</tr>
-<tr>
-<td>ref</td>
-<td>The reference fasta</td>
-</tr>
-<tr>
-<td>threads</td>
-<td>The number of threads to be used</td>
-</tr>
-<tr>
-<td>working_dir</td>
-<td>The directory used to process data and store temporary files (most cases the current directory)</td>
-</tr>
-<tr>
-<td>storage_dir</td>
-<td>The directory used to store data (most cases the current directory)</td>
-</tr>
-</tbody>
-</table>
-<p>The final structure will look like the following:</p>
-<pre><code>base_dir/
-├──fastq/
-│  ├──sample1_1.fastq
-│  └──sample1_2.fastq
-├──coverage/
-│  └──sample1.coverage.gz
-├──vcf/
-│  └──sample1.filt.vcf.gz
-└──bam/
-   └──sample1.bam
-</code></pre><p>To create a SNP matrix from the VCFs and coverage files we will use the <code>filter_SNPs_MT_0.2.pl</code> script. This can be done either step by step using the different filtering modules individually or can be performed in one run. Before we can run the main pipeline we should create a mappability file listing the unique regions in the genome:&lt;br&gt;</p>
-<pre><code>filter_SNPs_MT_0.2.pl mappability &lt;ref&gt; &lt;kmer&gt; &lt;threads&gt;
-</code></pre><table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ref</td>
-<td>The reference fasta to use</td>
-</tr>
-<tr>
-<td>kmer</td>
-<td>The size of the kmer to look for uniqueness (should be roughly the same as the read length)</td>
-</tr>
-<tr>
-<td>threads</td>
-<td>Number of threads to use</td>
-</tr>
-</tbody>
-</table>
-<p>This will create a file named mappability.bed in the current directory which will feed into the pipeline. We will also be filtering based on the total coverage over all samples. Because non-nuclear DNA will have higher coverage we do not want to filter these based on the same cut-offs. We must give a file listing all the chromosomes (one per line) which we would like to apply this filtering to.<br>The main command requires a number of different parameters which will be used during different stages in the filtering process: &lt;br&gt;</p>
-<pre><code>filter_SNPs_MT_0.2.pl all &lt;sample_file&gt; &lt;base_dir&gt; &lt;%cov&gt; &lt;min_cov&gt; &lt;threads&gt; &lt;samtools|gatk|both&gt; &lt;mappability_file&gt; &lt;nuclear_chromosomes&gt;
-</code></pre><table>
-<thead>
-<tr>
-<th>Option</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>sample_file</td>
-<td>File containing the names of all samples (one per line). The naming of vcf and coverage files must be consistent with these names</td>
-</tr>
-<tr>
-<td>base_dir</td>
-<td>Directory containing two directories names ‘coverage’ and ‘vcf’</td>
-</tr>
-<tr>
-<td>%cov</td>
-<td>The minimum allelic frequency of the alternate allele for it to be called</td>
-</tr>
-<tr>
-<td>min_cov</td>
-<td>Minimum coverage for a position to be considered. If lower it will be marked as missing</td>
-</tr>
-<tr>
-<td>threads</td>
-<td>Number of threads to use during processing</td>
-</tr>
-<tr>
-<td>samtools\</td>
-<td>gatk\</td>
-<td>both</td>
-<td>Which source of VCFs to use. Samtools should have the extension .filt.vcf.gz GATK should have the extension .gatk.raw.vcf.gz. Using both will use the union of the results.</td>
-</tr>
-<tr>
-<td>mappability_file</td>
-<td>The mappability file to use. If you created this using mappability function of the script is will be names mappability.bed.</td>
-</tr>
-<tr>
-<td>nuclear_chromosomes</td>
-<td>The chromosomes which should use the total coverage filter</td>
-</tr>
-</tbody>
-</table>
-<p>This will perform several filters on the dataset interactively. For each of these steps a graph plot will appear and ask you to set cut-off values. Please click (anywhere on the plot) at the corresponding value you would like to set the cut-off at using the indicated axis:&lt;br&gt;</p>
-<ul>
-<li>Filtering samples with large number of missing or mixed calls and those with low median depth<ul>
-<li>A plot of the number of missing calls as a proportion of the total number of SNP positions. (Y-axis)</li>
-<li>A plot of the number of mixed calls as a proportion of the total number of SNP positions (Y-axis)</li>
-<li>A plot of the number of the median depth per sample (Y-axis)</li>
-</ul>
-</li>
-<li>Filtering out SNPs with large number of missing or mixed calls<ul>
-<li>A plot of the number of missing calls as a proportion of call per SNP. (Y-axis)</li>
-<li>A plot of the number of mixed calls as a proportion of call per SNP. (Y-axis)</li>
-</ul>
-</li>
-<li>Filtering out SNPs with low coverage over all samples<ul>
-<li>A plot containing the density function of the total coverage per SNP (X-axis)</li>
-</ul>
-</li>
-</ul>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  overflow:hidden;
+   margin:0;
+}
+
+text {
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="functions.js"></script>
+<script>
+var w = window.innerWidth;
+var h = window.innerHeight;
+
+var keyc = true, keys = true, keyt = true, keyr = true, keyx = true, keyd = true, keyl = true, keym = true, keyh = true, key1 = true, key2 = true, key3 = true, key0 = true
+
+var focus_node = null, highlight_node = null;
+
+var text_center = false;
+var outline = false;
+
+var min_score = 0;
+var max_score = 100;
+
+var color = d3.scale.linear()
+  .domain([min_score, (min_score+max_score)/2, max_score])
+  .range(["grey", "blue", "black"]);
+
+var highlight_color = "blue";
+var highlight_trans = 0.1;
+
+var size = d3.scale.pow().exponent(1)
+  .domain([1,100])
+  .range([8,24]);
+
+var force = d3.layout.force()
+  .linkDistance(60)
+  .charge(-300)
+  .size([w,h]);
+
+var default_node_color = "#ccc";
+//var default_node_color = "rgb(3,190,100)";
+var default_link_color = "#888";
+var nominal_base_node_size = 8;
+var nominal_text_size = 10;
+var max_text_size = 24;
+var nominal_stroke = 1.5;
+var max_stroke = 4.5;
+var max_base_node_size = 36;
+var min_zoom = 0.1;
+var max_zoom = 7;
+var svg = d3.select("body").append("svg");
+var zoom = d3.behavior.zoom().scaleExtent([min_zoom,max_zoom])
+var g = svg.append("g");
+svg.style("cursor","move");
+
+d3.json("Data.json", function(error, graph) {
+
+var linkedByIndex = {};
+    graph.links.forEach(function(d) {
+	linkedByIndex[d.source + "," + d.target] = true;
+    });
+
+	function isConnected(a, b) {
+        return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
+    }
+
+	function hasConnections(a) {
+		for (var property in linkedByIndex) {
+				s = property.split(",");
+				if ((s[0] == a.index || s[1] == a.index) && linkedByIndex[property]) 					return true;
+		}
+	return false;
+	}
+
+  force
+    .nodes(graph.nodes)
+    .links(graph.links)
+    .start();
+
+  var link = g.selectAll(".link")
+    .data(graph.links)
+    .enter().append("line")
+    .attr("class", "link")
+	.style("stroke-width",nominal_stroke)
+	.style("stroke", function(d) {
+	if (isNumber(d.score) && d.score>=0) return color(d.score);
+	else return default_link_color; })
+
+
+  var node = g.selectAll(".node")
+    .data(graph.nodes)
+    .enter().append("g")
+    .attr("class", "node")
+
+    .call(force.drag)
+
+
+	node.on("dblclick.zoom", function(d) { d3.event.stopPropagation();
+	var dcx = (window.innerWidth/2-d.x*zoom.scale());
+	var dcy = (window.innerHeight/2-d.y*zoom.scale());
+	zoom.translate([dcx,dcy]);
+	 g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+
+
+	});
+
+
+
+
+	var tocolor = "fill";
+	var towhite = "stroke";
+	if (outline) {
+		tocolor = "stroke"
+		towhite = "fill"
+	}
+
+
+
+  var circle = node.append("path")
+
+
+      .attr("d", d3.svg.symbol()
+        .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
+        .type('circle'))
+
+	.style(tocolor, function(d) {
+	if (isNumber(d.group) && d.group>=0) return color(d.group);
+	else return default_node_color; })
+    //.attr("r", function(d) { return size(d.size)||nominal_base_node_size; })
+	.style("stroke-width", nominal_stroke)
+	.style(towhite, "white");
+
+
+  var text = g.selectAll(".text")
+    .data(graph.nodes)
+    .enter().append("text")
+    .attr("dy", ".35em")
+	.style("font-size", nominal_text_size + "px")
+
+	if (text_center)
+	 text.text(function(d) { return d.id; })
+	.style("text-anchor", "middle");
+	else
+	text.attr("dx", function(d) {return (size(d.size)||nominal_base_node_size);})
+    .text(function(d) { return '\u2002'+d.id; });
+
+	node.on("mouseover", function(d) {
+	set_highlight(d);
+	})
+  .on("mousedown", function(d) { d3.event.stopPropagation();
+  	focus_node = d;
+	set_focus(d)
+	if (highlight_node === null) set_highlight(d)
+
+}	).on("mouseout", function(d) {
+		exit_highlight();
+
+}	);
+
+		d3.select(window).on("mouseup",
+		function() {
+		if (focus_node!==null)
+		{
+			focus_node = null;
+			if (highlight_trans<1)
+			{
+
+		circle.style("opacity", 1);
+	  text.style("opacity", 1);
+	  link.style("opacity", 1);
+	}
+		}
+
+	if (highlight_node === null) exit_highlight();
+		});
+
+function exit_highlight()
+{
+		highlight_node = null;
+	if (focus_node===null)
+	{
+		svg.style("cursor","move");
+		if (highlight_color!="white")
+	{
+  	  circle.style(towhite, "white");
+	  text.style("font-weight", "normal");
+	  link.style("stroke", function(o) {return (isNumber(o.score) && o.score>=0)?color(o.score):default_link_color});
+ }
+
+	}
+}
+
+function set_focus(d)
+{
+if (highlight_trans<1)  {
+    circle.style("opacity", function(o) {
+                return isConnected(d, o) ? 1 : highlight_trans;
+            });
+
+			text.style("opacity", function(o) {
+                return isConnected(d, o) ? 1 : highlight_trans;
+            });
+
+            link.style("opacity", function(o) {
+                return o.source.index == d.index || o.target.index == d.index ? 1 : highlight_trans;
+            });
+	}
+}
+
+
+function set_highlight(d)
+{
+	svg.style("cursor","pointer");
+	if (focus_node!==null) d = focus_node;
+	highlight_node = d;
+
+	if (highlight_color!="white")
+	{
+		  circle.style(towhite, function(o) {
+                return isConnected(d, o) ? highlight_color : "white";});
+			text.style("font-weight", function(o) {
+                return isConnected(d, o) ? "bold" : "normal";});
+            link.style("stroke", function(o) {
+		      return o.source.index == d.index || o.target.index == d.index ? highlight_color : ((isNumber(o.score) && o.score>=0)?color(o.score):default_link_color);
+
+            });
+	}
+}
+
+
+  zoom.on("zoom", function() {
+
+    var stroke = nominal_stroke;
+    if (nominal_stroke*zoom.scale()>max_stroke) stroke = max_stroke/zoom.scale();
+    link.style("stroke-width",stroke);
+    circle.style("stroke-width",stroke);
+
+	var base_radius = nominal_base_node_size;
+    if (nominal_base_node_size*zoom.scale()>max_base_node_size) base_radius = max_base_node_size/zoom.scale();
+        circle.attr("d", d3.svg.symbol()
+        .size(function(d) { return Math.PI*Math.pow(size(d.size)*base_radius/nominal_base_node_size||base_radius,2); })
+        .type(function(d) { return d.type; }))
+
+	//circle.attr("r", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); })
+	if (!text_center) text.attr("dx", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
+
+	var text_size = nominal_text_size;
+    if (nominal_text_size*zoom.scale()>max_text_size) text_size = max_text_size/zoom.scale();
+    text.style("font-size",text_size + "px");
+
+	g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	});
+
+  svg.call(zoom);
+
+  resize();
+  //window.focus();
+  d3.select(window).on("resize", resize).on("keydown", keydown);
+
+  force.on("tick", function() {
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    text.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+	});
+
+  function resize() {
+    var width = window.innerWidth, height = window.innerHeight;
+	svg.attr("width", width).attr("height", height);
+
+	force.size([force.size()[0]+(width-w)/zoom.scale(),force.size()[1]+(height-h)/zoom.scale()]).resume();
+    w = width;
+	h = height;
+	}
+
+	function keydown() {
+	if (d3.event.keyCode==32) {  force.stop();}
+	else if (d3.event.keyCode>=48 && d3.event.keyCode<=90 && !d3.event.ctrlKey && !d3.event.altKey && !d3.event.metaKey)
+	{
+  switch (String.fromCharCode(d3.event.keyCode)) {
+    case "C": keyc = !keyc; break;
+    case "S": keys = !keys; break;
+	case "T": keyt = !keyt; break;
+	case "R": keyr = !keyr; break;
+    case "X": keyx = !keyx; break;
+	case "D": keyd = !keyd; break;
+	case "L": keyl = !keyl; break;
+	case "M": keym = !keym; break;
+	case "H": keyh = !keyh; break;
+	case "1": key1 = !key1; break;
+	case "2": key2 = !key2; break;
+	case "3": key3 = !key3; break;
+	case "0": key0 = !key0; break;
+  }
+
+  link.style("display", function(d) {
+				var flag  = vis_by_type(d.source.type)&&vis_by_type(d.target.type)&&vis_by_node_score(d.source.score)&&vis_by_node_score(d.target.score)&&vis_by_link_score(d.score);
+				linkedByIndex[d.source.index + "," + d.target.index] = flag;
+              return flag?"inline":"none";});
+  node.style("display", function(d) {
+				return (key0||hasConnections(d))&&vis_by_type(d.type)&&vis_by_node_score(d.score)?"inline":"none";});
+  text.style("display", function(d) {
+                return (key0||hasConnections(d))&&vis_by_type(d.type)&&vis_by_node_score(d.score)?"inline":"none";});
+
+				if (highlight_node !== null)
+				{
+					if ((key0||hasConnections(highlight_node))&&vis_by_type(highlight_node.type)&&vis_by_node_score(highlight_node.score)) {
+					if (focus_node!==null) set_focus(focus_node);
+					set_highlight(highlight_node);
+					}
+					else {exit_highlight();}
+				}
+
+}
+}
+
+});
+
+function vis_by_type(type)
+{
+	switch (type) {
+	  case "circle": return keyc;
+	  case "square": return keys;
+	  case "triangle-up": return keyt;
+	  case "diamond": return keyr;
+	  case "cross": return keyx;
+	  case "triangle-down": return keyd;
+	  default: return true;
+}
+}
+function vis_by_node_score(score)
+{
+	if (isNumber(score))
+	{
+	if (score>=0.666) return keyh;
+	else if (score>=0.333) return keym;
+	else if (score>=0) return keyl;
+	}
+	return true;
+}
+
+function vis_by_link_score(score)
+{
+	if (isNumber(score))
+	{
+	if (score>=0.666) return key3;
+	else if (score>=0.333) return key2;
+	else if (score>=0) return key1;
+}
+	return true;
+}
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+
+</script>

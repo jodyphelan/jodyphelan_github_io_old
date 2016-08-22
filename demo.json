@@ -1,0 +1,10 @@
+{
+  "graph": [],
+  "links": [
+    {"source": 0, "target": 1}],
+  "nodes": [
+    {"id": "Androsynth", "type": "circle"},
+		{"id": "Intruder", "type": "circle"}],
+  "directed": false,
+  "multigraph": false
+}
