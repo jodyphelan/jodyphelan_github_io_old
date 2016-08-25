@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <input type="number" min="0" max="360" step="5" value="0" id="nValue">
+  <input type="number" min="0" max="500" step="5" value="0" id="nValue">
 
 
 <script>
@@ -185,6 +185,13 @@ function exit_highlight(){
    return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
  }
 
+ function hasConnections(a) {
+ 		for (var property in linkedByIndex) {
+ 				s = property.split(",");
+ 				if ((s[0] == a.index || s[1] == a.index) && linkedByIndex[property]) 					return true;
+ 		}
+ 	return false;
+ 	}
 //////////// Functions End ///////////////
 
 ////////// Definitions Start ////////////
@@ -218,6 +225,9 @@ function exit_highlight(){
   var highlight_color = "blue";
   var highlight_trans = 0.1;
 
+  var linkScale = d3.scale.linear()
+    .domain([Math.min.apply(Math,data.links.map(function(d){return Number(d.value)})),Math.max.apply(Math,data.links.map(function(d){return Number(d.value)}))])
+    .range([0.1,100])
 
   var size = d3.scale.pow().exponent(1)
     .domain([1,100])
@@ -269,7 +279,14 @@ function exit_highlight(){
     .charge(-300)
     .nodes(graph.nodes)
     .links(graph.links)
-    .start();
+
+  force.linkDistance(function(link) {
+    console.log(linkScale(link.value));
+    return linkScale(link.value);
+  });
+
+  force.start();
+
 
   resize();
 
