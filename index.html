@@ -2,18 +2,21 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
-            rel="stylesheet">
-        <style>
 
+        <style>
+        div.container {
+          width: 100%;
+          border: 1px solid gray;
+        }
         </style>
         <script src="data.json"></script>
         <script src="d3.v3.min.js"></script>
 </head>
 <body>
 
+<p >
   <input type="number" min="0" max="500" step="5" value="0" id="nValue">
-
+</p>
 
 <script>
 
@@ -225,6 +228,8 @@ function exit_highlight(){
   var highlight_color = "blue";
   var highlight_trans = 0.1;
 
+  var color = d3.scale.category10();
+
   var linkScale = d3.scale.linear()
     .domain([Math.min.apply(Math,data.links.map(function(d){return Number(d.value)})),Math.max.apply(Math,data.links.map(function(d){return Number(d.value)}))])
     .range([0.1,100])
@@ -320,7 +325,7 @@ function exit_highlight(){
       .type(function(d) { return d.type; })
     )
     .style(tocolor,function (d){
-      if (isNumber(d.score) && d.score>=0) return color(d.score);
+      if (isNumber(d.group) && d.group>=0) return color(d.group);
       else return default_node_color;
     })
     .style("stroke-width", nominal_stroke)
