@@ -14,17 +14,13 @@ my %meta;
 my $ct = 0;
 open F, $ARGV[1] or die;
 while(<F>){
-	my ($sample,$meta) = split /\s+/,$_;
-	if (!exists($hasMeta{$meta})){
-		$hasMeta{$meta} = $ct; $ct++;
-	}
-	$meta{$sample} = $hasMeta{$meta};
+	my ($sample,$group,$shape,$hiv) = split /\s+/,$_;
+	$meta{$sample}{'group'} = $group;
+	$meta{$sample}{'shape'} = $shape;
+	$meta{$sample}{'hiv'} = $hiv;
 }
 close F;
 
-for (keys %meta) {
-	print "$_\t$meta{$_}\n";
-}
 
 my %dists;
 my @samples;
@@ -63,7 +59,7 @@ my $numNodes = scalar %dists;
 my $num = 0;
 foreach my $sample (@samples) {
 
-	$nodeLine .= "\t\t{\"id\": \"$sample\",\"group\":$meta{$sample}},\n";
+	$nodeLine .= "\t\t{\"id\": \"$sample\",\"group\":$meta{$sample}{'group'},\"hiv\":$meta{$sample}{'hiv'},\"type\":\"$meta{$sample}{'shape'}\"},\n";
 	$edgeLine .= "\t\t{\"source\": $samples{$sample}, \"target\": $samples{$dists{$sample}{'neighbour'}},\"value\":$dists{$sample}{'dist'}},\n";
 	$num++;
 }
