@@ -2,46 +2,120 @@
 <html>
 <head>
   <meta charset='utf-8'>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
         <style>
         div.container {
           width: 100%;
           border: 1px solid gray;
         }
+        div.tooltip {
+          position: absolute;
+          text-align: center;
+          width: 180px;
+          height: 18px;
+          padding: 2px;
+          font: 12px sans-serif;
+          background: lightsteelblue;
+          border: 0px;
+          border-radius: 8px;
+          pointer-events: none;
+        }
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
         </style>
         <script src="data.json"></script>
         <script src="d3.v3.min.js"></script>
+        <script src="clusterSize.js"></script>
+        <script src="useful.js"></script>
+
 </head>
 <body>
 
-<p >
-  <input type="number" min="0" max="500" step="5" value="0" id="nValue">
-</p>
+<div class="row">
+  <div class="col-md-2">
+    <p>
+      Num SNPs:
+      <input type="number" min="0" max="500" step="5" value="0" id="nValue">
+    </p>
+    <p>
+      Min Cluster Size:
+      <input type="number" min="0" max="500" step="1" value="0" id="cValue">
+    </p>
+    <hr>
+    <p id="node">
+      Sample:
+    </p>
+    <hr>
+    <p id="spar">
+
+    </p>
+  </div>
+  <div class="col-md-10" id="graph">
+
+  </div>
+</div>
 
 <script>
 
+var SNPs = 0;
+var Clusters = 0;
+
+
+
 d3.select("#nValue").on("input", function() {
   svg.remove()
-  initData(+this.value);
+  SNPs = this.value;
+  initData(SNPs,Clusters);
   initForce();
 });
 
+d3.select("#cValue").on("input", function(){
+  svg.remove()
+  Clusters = this.value;
+  initData(SNPs,Clusters);
+  initForce();
+})
 
 var graph = {};
+var raw = {};
 
-function initData(SNPs){
+
+function initData(snps,clusters){
 
 //var SNPs=document.getElementById('input1').value;
+console.log(clusters);
 
-  console.log(SNPs);
+
   generateGraphJSON(SNPs);
+
+
 
   function generateGraphJSON(SNPs){
     graph.nodes = data.nodes
-    graph.links = data.links.filter(function(dat){
+    graph.links = JSON.parse(JSON.stringify(data.links.filter(function(dat){
       if(dat.value<SNPs){return dat;}
-    });
+    })));
   }
+  if (clusters!=0){
+    console.log(graph.links)
+    graph = reduceByCluster(graph.nodes,graph.links,clusters);
+  }
+  raw.nodes = JSON.parse(JSON.stringify(graph.nodes));
+  raw.links = JSON.parse(JSON.stringify(graph.links));
 }
 
 function initForce(){
@@ -61,141 +135,22 @@ function resize() {
  	h = height;
  }
 
-// Return the visType
- function vis_by_type(type){
- 	switch (type) {
- 	  case "circle": return keyc;
- 	  case "square": return keys;
- 	  case "triangle-up": return keyt;
- 	  case "diamond": return keyr;
- 	  case "cross": return keyx;
- 	  case "triangle-down": return keyd;
- 	  default: return true;
- 	}
+ function highlightNode(d){
+
+   circle.style("fill",function(o){
+     if (d.id==o.id) return "grey"
+     else if (isNumber(o.group) && o.group>=0) return color(o.group);
+   });
  }
 
-// Return the Node score
- function vis_by_node_score(score){
- 	if (isNumber(score)){
- 		if (score>=0.666) return keyh;
- 		else if (score>=0.333) return keym;
- 		else if (score>=0) return keyl;
- 	}
- 	return true;
+ function exitHighlight(d){
+   circle.style("fill",function(o){
+     if (isNumber(o.group) && o.group>=0) return color(o.group);
+   });
  }
 
-// Return the link score
-function vis_by_link_score(score){
-	if (isNumber(score))	{
-		if (score>=0.666) return key3;
-		else if (score>=0.333) return key2;
-		else if (score>=0) return key1;
-	}
-	return true;
-}
-
-// Function to focus the nodes on clicks
-function set_focus(d){
-	if (highlight_trans<1)  {
-    circle.style("opacity", function(o) {
-  		return isConnected(d, o) ? 1 : highlight_trans;
-    });
-		text.style("opacity", function(o) {
-    	return isConnected(d, o) ? 1 : highlight_trans;
-    });
-    links.style("opacity", function(o) {
-      return o.source.index == d.index || o.target.index == d.index ? 1 : highlight_trans;
-    });
-	}
-}
-
-// Function used to highlight the nodes
-function set_highlight(d){
-	svg.style("cursor","pointer");
-	if (focus_node!==null) d = focus_node;
-	highlight_node = d;
-	if (highlight_color!="white"){
-		circle.style(towhite, function(o) {
-      return isConnected(d, o) ? highlight_color : "white";
-		});
-		text.style("font-weight", function(o) {
-    	return isConnected(d, o) ? "bold" : "normal";
-		});
-    links.style("stroke", function(o) {
-		      return o.source.index == d.index || o.target.index == d.index ? highlight_color : ((isNumber(o.score) && o.score>=0)?color(o.score):default_link_color);
-    });
-	}
-}
-
-// Function used to exit hte highligthing
-function exit_highlight(){
-	highlight_node = null;
-	if (focus_node===null){
-		svg.style("cursor","move");
-		if (highlight_color!="white"){
-  	  circle.style(towhite, "white");
-	  	text.style("font-weight", "normal");
-	  	links.style("stroke", function(o) {return (isNumber(o.score) && o.score>=0)?color(o.score):default_link_color});
- 		}
-	}
-}
-
-// Perform actions when keys are pressed
- function keydown() {
-   // code 32 == space key
- 	if (d3.event.keyCode==32) {  force.stop();}
- 	else if (d3.event.keyCode>=48 && d3.event.keyCode<=90 && !d3.event.ctrlKey && !d3.event.altKey && !d3.event.metaKey){
-   	switch (String.fromCharCode(d3.event.keyCode)) {
-      // "keyc = !keyc" assigns to the inverse of keyc false|true
-      case "C": keyc = !keyc; break;
-     	case "S": keys = !keys; break;
- 			case "T": keyt = !keyt; break;
- 			case "R": keyr = !keyr; break;
-     	case "X": keyx = !keyx; break;
- 			case "D": keyd = !keyd; break;
- 			case "L": keyl = !keyl; break;
- 			case "M": keym = !keym; break;
- 			case "H": keyh = !keyh; break;
- 			case "1": key1 = !key1; break;
- 			case "2": key2 = !key2; break;
- 			case "3": key3 = !key3; break;
- 			case "0": key0 = !key0; break;
-   	}
- 		links.style("display", function(d) {
- 			var flag  = vis_by_type(d.source.type)&&vis_by_type(d.target.type)&&vis_by_node_score(d.source.score)&&vis_by_node_score(d.target.score)&&vis_by_link_score(d.score);
- 			linkedByIndex[d.source.index + "," + d.target.index] = flag;
-       return flag?"inline":"none";
- 		});
-   	nodes.style("display", function(d) {
- 			return (key0||hasConnections(d))&&vis_by_type(d.type)&&vis_by_node_score(d.score)?"inline":"none";
- 		});
-   	text.style("display", function(d) {
-       return (key0||hasConnections(d))&&vis_by_type(d.type)&&vis_by_node_score(d.score)?"inline":"none";
- 		});
- 		if (highlight_node !== null){
- 			if ((key0||hasConnections(highlight_node))&&vis_by_type(highlight_node.type)&&vis_by_node_score(highlight_node.score)) {
- 				if (focus_node!==null) set_focus(focus_node);
- 				set_highlight(highlight_node);
- 			}	else {
- 				exit_highlight();
- 			}
- 		}
- 	}
- }
-
-// Finds out if two nodes are connected
- function isConnected(a, b) {
-   return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
- }
-
- function hasConnections(a) {
- 		for (var property in linkedByIndex) {
- 				s = property.split(",");
- 				if ((s[0] == a.index || s[1] == a.index) && linkedByIndex[property]) 					return true;
- 		}
- 	return false;
- 	}
 //////////// Functions End ///////////////
+
 
 ////////// Definitions Start ////////////
   var w = window.innerWidth;
@@ -219,14 +174,7 @@ function exit_highlight(){
   var text_center = false;
   var outline = false;
 
-
   var focus_node = null, highlight_node = null;
-//Key Definitions
-  var keyc = true, keys = true, keyt = true, keyr = true, keyx = true, keyd = true, keyl = true, keym = true, keyh = true, key1 = true, key2 = true, key3 = true, key0 = true
-
-
-  var highlight_color = "blue";
-  var highlight_trans = 0.1;
 
   var color = d3.scale.category10();
 
@@ -251,11 +199,11 @@ function exit_highlight(){
       .type(function(d) { return d.type; }))
 
   	//circle.attr("r", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); })
-  	if (!text_center) text.attr("dx", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
+//  	if (!text_center) text.attr("dx", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
 
   	var text_size = nominal_text_size;
     if (nominal_text_size*zoom.scale()>max_text_size) text_size = max_text_size/zoom.scale();
-    text.style("font-size",text_size + "px");
+//    text.style("font-size",text_size + "px");
 
   	g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   });
@@ -265,13 +213,16 @@ function exit_highlight(){
   	linkedByIndex[d.source + "," + d.target] = true;
   });
 
+  var div = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
 
 ////////// Definitions End /////////////
 
 
 
 
-  svg = d3.select("body").append("svg");
+  svg = d3.select("#graph").append("svg");
 // Change the style of the cursor when over svg elements
   svg.style("cursor", "move");
   g = svg.append("g");
@@ -283,7 +234,7 @@ function exit_highlight(){
     .linkDistance(60)
     .charge(-300)
     .nodes(graph.nodes)
-    .links(graph.links)
+    .links(graph.links);
 
   force.linkDistance(function(link) {
     console.log(linkScale(link.value));
@@ -311,12 +262,6 @@ function exit_highlight(){
     .attr("class","node")
     .call(force.drag)
 
-  var tocolor = "fill";
-  var towhite = "stroke";
-  if (outline) {
-  	tocolor = "stroke"
-  	towhite = "fill"
-  }
 
 
   circle = nodes.append("path")
@@ -324,64 +269,72 @@ function exit_highlight(){
       .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
       .type(function(d) { return d.type; })
     )
-    .style(tocolor,function (d){
+    .style("fill",function (d){
       if (isNumber(d.group) && d.group>=0) return color(d.group);
       else return default_node_color;
     })
     .style("stroke-width", nominal_stroke)
-    .style(towhite, "white")
+    .style("stroke", function(d){
+
+      if (isNumber(d.hiv) && d.hiv>0) return ("red")
+      else return "white"
+    })
 
 
-  var text = g.selectAll(".text")
-    .data(graph.nodes)
-    .enter().append("text")
-    .attr("dy", ".35em")
-    .style("font-size", nominal_text_size + "px")
 
-  if (text_center){
-    text.text(function(d) { return d.id; })
-      .style("text-anchor", "middle");
-  } else {
-    text.attr("dx", function(d) {return (size(d.size)||nominal_base_node_size);})
-      .text(function(d) { return '\u2002'+d.id; });
-  }
+// Highlights the nodes when the  hovers over
 
-// Highlights the nodes when the mouse hovers over
   nodes.on("mouseover", function(d) {
-    set_highlight(d);
+
+    highlightNode(d);
+    div.transition()
+      .duration(200)
+      .style("opacity", .9);
+    div.html("ID: " +d.id)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
   })
-// Highlights all the connecting nodes on mouse click on node
-    .on("mousedown", function(d) { d3.event.stopPropagation();
-        focus_node = d;
-        set_focus(d)
-        if (highlight_node === null) set_highlight(d)
-    }).on("mouseout", function(d) {
-    		exit_highlight();
-    });
+  .on("mouseout", function(d) {
+    exitHighlight(d);
+    div.transition()
+      .duration(500)
+      .style("opacity", 0);
+  })
+  // important to make the nodes draggble
+  .on("mousedown", function(d) {
+    d3.event.stopPropagation()
+    var htmltext = "Sample: " + d.id;
+    document.getElementById("node").innerHTML = htmltext;
+    var x = findEdges(d.id,raw.nodes,raw.links)
+//    for (i in x){
+//      htmltext = htmltext + "<br>" + nodeByIdx(x[i].source,raw.nodes) + "\t|\t" + nodeByIdx(x[i].target,raw.nodes) + "\t|\t" + x[i].value;
+//    }
+//     document.getElementById("spar").innerHTML = htmltext;
+    tableCreate(x)
+//    console.log(x);
+  });
 
-
-// This makes the nodes stop highlighting when the mouse click is released
-  d3.select(window).on("mouseup",function() {
-    if (focus_node!==null){
-    	focus_node = null;
-    	if (highlight_trans<1){
-    		circle.style("opacity", 1);
-    	  text.style("opacity", 1);
-    	  links.style("opacity", 1);
-    	}
-    }
-    if (highlight_node === null) exit_highlight();
+  links.on("mouseover",function(d) {
+    div.transition()
+      .duration(200)
+      .style("opacity", .9);
+    div.html("value: " +d.value)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(d) {
+    div.transition()
+      .duration(500)
+      .style("opacity", 0);
   });
 
 
 // This makes the viz resize when the window size changes - calls to function resize
-  d3.select(window).on("resize", resize).on("keydown", keydown);
+  d3.select(window).on("resize", resize);
 
 // This actually starts the force simulation and tracks the coordinate changes
   force.on("tick",function(){
     nodes
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-    text
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
     links
@@ -397,7 +350,7 @@ function exit_highlight(){
 
 }
 
-initData(0);
+initData(0,0);
 initForce();
 
 
