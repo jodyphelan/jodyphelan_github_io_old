@@ -3,14 +3,44 @@
 <head>
   <meta charset='utf-8'>
   <link rel="stylesheet" href="bootstrap.min.css">
-  <script src="data.json"></script>
-  <script src="d3.v3.min.js"></script>
-  <script src="clusterSize.js"></script>
-  <script src="useful.js"></script>
-  <script src="jquery-3.1.0.min.js"></script>
-  <link rel="stylesheet" href="leaflet.css">
-  <link rel="stylesheet" href="styles.css">
-  <script src="leaflet.js"></script>
+
+        <style>
+        div.container {
+          width: 100%;
+          border: 1px solid gray;
+        }
+        div.tooltip {
+          position: absolute;
+          text-align: center;
+          width: 180px;
+          height: 18px;
+          padding: 2px;
+          font: 12px sans-serif;
+          background: lightsteelblue;
+          border: 0px;
+          border-radius: 8px;
+          pointer-events: none;
+        }
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+        </style>
+        <script src="data.json"></script>
+        <script src="d3.v3.min.js"></script>
+        <script src="clusterSize.js"></script>
+        <script src="useful.js"></script>
 
 </head>
 <body>
@@ -34,56 +64,299 @@
 
     </p>
   </div>
-  <div class="col-md-5" id="graph">
-
-  </div>
-
-  <div class="col-md-5">
-    <div id="map" style="width: 100%; height: 100vh"></div>
-  </div>
+  <div class="col-md-10" id="graph">
 
   </div>
 </div>
 
-
-<script src="definitions.js"></script>
-<script src="functions.js"></script>
-<script src="main.js"></script>
-
 <script>
 
+var SNPs = 0;
+var Clusters = 0;
+
+
+
 d3.select("#nValue").on("input", function() {
+  svg.remove()
   SNPs = this.value;
   initData(SNPs,Clusters);
   initForce();
-  drawMap();
-  drawGraph();
 });
 
 d3.select("#cValue").on("input", function(){
+  svg.remove()
   Clusters = this.value;
   initData(SNPs,Clusters);
   initForce();
-  drawMap();
-  drawGraph();
 })
+
+var graph = {};
+var raw = {};
+
+
+function initData(snps,clusters){
+
+//var SNPs=document.getElementById('input1').value;
+console.log(clusters);
+
+
+  generateGraphJSON(SNPs);
+
+
+
+  function generateGraphJSON(SNPs){
+    graph.nodes = data.nodes
+    graph.links = JSON.parse(JSON.stringify(data.links.filter(function(dat){
+      if(dat.value<SNPs){return dat;}
+    })));
+  }
+  if (clusters!=0){
+    console.log(graph.links)
+    graph = reduceByCluster(graph.nodes,graph.links,clusters);
+  }
+  raw.nodes = JSON.parse(JSON.stringify(graph.nodes));
+  raw.links = JSON.parse(JSON.stringify(graph.links));
+}
+
+function initForce(){
+///////////// Functions Start /////////////
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+// Resize the window according to the current size. This is called later by an event when the window has changed
+function resize() {
+	var width = window.innerWidth, height = window.innerHeight;
+	svg.attr("width", width).attr("height", height);
+  //Changes the force layout too
+	force.size([force.size()[0]+(width-w)/zoom.scale(),force.size()[1]+(height-h)/zoom.scale()]).resume();
+	w = width;
+ 	h = height;
+ }
+
+ function highlightNode(d){
+
+   circle.style("fill",function(o){
+     if (d.id==o.id) return "grey"
+     else if (isNumber(o.group) && o.group>=0) return color(o.group);
+   });
+ }
+
+ function exitHighlight(d){
+   circle.style("fill",function(o){
+     if (isNumber(o.group) && o.group>=0) return color(o.group);
+   });
+ }
+
+//////////// Functions End ///////////////
+
+
+////////// Definitions Start ////////////
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+
+  var default_node_color = "#ccc";
+  //var default_node_color = "rgb(3,190,100)";
+  var default_link_color = "#888";
+
+
+  var nominal_base_node_size = 8;
+  var nominal_text_size = 10;
+  var max_text_size = 24;
+  var nominal_stroke = 1.5;
+  var max_stroke = 4.5;
+  var max_base_node_size = 36;
+  var min_zoom = 0.1;
+  var max_zoom = 7;
+  var zoom = d3.behavior.zoom().scaleExtent([min_zoom,max_zoom])
+
+  var text_center = false;
+  var outline = false;
+
+  var focus_node = null, highlight_node = null;
+
+  var color = d3.scale.category10();
+
+  var linkScale = d3.scale.linear()
+    .domain([Math.min.apply(Math,data.links.map(function(d){return Number(d.value)})),Math.max.apply(Math,data.links.map(function(d){return Number(d.value)}))])
+    .range([0.1,100])
+
+  var size = d3.scale.pow().exponent(1)
+    .domain([1,100])
+    .range([8,24]);
+
+  zoom.on("zoom", function() {
+    var stroke = nominal_stroke;
+    if (nominal_stroke*zoom.scale()>max_stroke) stroke = max_stroke/zoom.scale();
+    links.style("stroke-width",stroke);
+    circle.style("stroke-width",stroke);
+
+  	var base_radius = nominal_base_node_size;
+    if (nominal_base_node_size*zoom.scale()>max_base_node_size) base_radius = max_base_node_size/zoom.scale();
+    circle.attr("d", d3.svg.symbol()
+      .size(function(d) { return Math.PI*Math.pow(size(d.size)*base_radius/nominal_base_node_size||base_radius,2); })
+      .type(function(d) { return d.type; }))
+
+  	//circle.attr("r", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); })
+//  	if (!text_center) text.attr("dx", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
+
+  	var text_size = nominal_text_size;
+    if (nominal_text_size*zoom.scale()>max_text_size) text_size = max_text_size/zoom.scale();
+//    text.style("font-size",text_size + "px");
+
+  	g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+  });
+
+  var linkedByIndex = {};
+  graph.links.forEach(function(d) {
+  	linkedByIndex[d.source + "," + d.target] = true;
+  });
+
+  var div = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+////////// Definitions End /////////////
+
+
 
 
   svg = d3.select("#graph").append("svg");
 // Change the style of the cursor when over svg elements
-  svg.style("cursor", "crosshair");
+  svg.style("cursor", "move");
   g = svg.append("g");
   svg.call(zoom);
 
 
+  force = d3.layout.force()
+    .size([w,h])
+    .linkDistance(60)
+    .charge(-300)
+    .nodes(graph.nodes)
+    .links(graph.links);
+
+  force.linkDistance(function(link) {
+    console.log(linkScale(link.value));
+    return linkScale(link.value);
+  });
+
+  force.start();
+
+
+  resize();
+
+  links = g.selectAll(".link")
+    .data(graph.links).enter()
+    .append("line")
+    .attr("class","link")
+    .style("stroke-width",nominal_stroke)
+    .style("stroke", function(d) {
+	    if (isNumber(d.score) && d.score>=0) return color(d.score);
+	    else return default_link_color;
+    })
+
+  nodes = g.selectAll(".node")
+    .data(graph.nodes).enter()
+    .append("g")
+    .attr("class","node")
+    .call(force.drag)
 
 
 
-  initData(0,0);
-  initForce();
-  initMap();
-  drawMap();
-  drawGraph();
+  circle = nodes.append("path")
+    .attr("d", d3.svg.symbol()
+      .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
+      .type(function(d) { return d.type; })
+    )
+    .style("fill",function (d){
+      if (isNumber(d.group) && d.group>=0) return color(d.group);
+      else return default_node_color;
+    })
+    .style("stroke-width", nominal_stroke)
+    .style("stroke", function(d){
+
+      if (isNumber(d.hiv) && d.hiv>0) return ("red")
+      else return "white"
+    })
+
+
+
+// Highlights the nodes when the  hovers over
+
+  nodes.on("mouseover", function(d) {
+
+    highlightNode(d);
+    div.transition()
+      .duration(200)
+      .style("opacity", .9);
+    div.html("ID: " +d.id)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(d) {
+    exitHighlight(d);
+    div.transition()
+      .duration(500)
+      .style("opacity", 0);
+  })
+  // important to make the nodes draggble
+  .on("mousedown", function(d) {
+    d3.event.stopPropagation()
+    var htmltext = "Sample: " + d.id;
+    document.getElementById("node").innerHTML = htmltext;
+    var x = findEdges(d.id,raw.nodes,raw.links)
+//    for (i in x){
+//      htmltext = htmltext + "<br>" + nodeByIdx(x[i].source,raw.nodes) + "\t|\t" + nodeByIdx(x[i].target,raw.nodes) + "\t|\t" + x[i].value;
+//    }
+//     document.getElementById("spar").innerHTML = htmltext;
+    tableCreate(x)
+//    console.log(x);
+  });
+
+  links.on("mouseover",function(d) {
+    div.transition()
+      .duration(200)
+      .style("opacity", .9);
+    div.html("value: " +d.value)
+      .style("left", (d3.event.pageX) + "px")
+      .style("top", (d3.event.pageY - 28) + "px");
+  })
+  .on("mouseout", function(d) {
+    div.transition()
+      .duration(500)
+      .style("opacity", 0);
+  });
+
+
+// This makes the viz resize when the window size changes - calls to function resize
+  d3.select(window).on("resize", resize);
+
+// This actually starts the force simulation and tracks the coordinate changes
+  force.on("tick",function(){
+    nodes
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    links
+      .attr("x1",function(d){return d.source.x})
+      .attr("x2",function(d){return d.target.x})
+      .attr("y1",function(d){return d.source.y})
+      .attr("y2",function(d){return d.target.y});
+
+    nodes
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+  });
+
+}
+
+initData(0,0);
+initForce();
+
+
+
+
+
 
 
 

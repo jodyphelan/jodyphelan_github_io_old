@@ -1,21 +1,21 @@
 
 function reduceByCluster(datNodes,datLinks,cutoff){
 
-  console.log("Cutoff = " + cutoff)
-console.log(datLinks);
+  //console.log("Cutoff = " + cutoff)
+  //console.log(datLinks);
   var hash = [];
   datLinks.forEach(function(d) {
     hash[hash.length] = d.source + "," + d.target;
 
   });
 
-console.log(hash);
+//console.log(hash);
 
   while (testHash(hash)==false){
     hash = reduceHash(hash);
   }
 
-
+  console.log(hash)
 
   var oldSamples = [];
   var newSamples = [];
@@ -27,16 +27,14 @@ console.log(hash);
   for (i in hash){
     var ivals = hash[i].split(",");
     cSize = ivals.length;
-    console.log(cSize + " | " + cutoff);
+    //console.log(cSize + " | " + cutoff);
     if (cSize >cutoff){
       for (j in ivals){
         var val = ivals[j];
-//        console.log("Pushing " + oldSamples[val] + "to new samples" )
         newSamples.push(oldSamples[val])
       }
     }
   }
-//  console.log(newSamples);
 
   newlinks = [];
   newnodes = [];
@@ -63,6 +61,48 @@ console.log(hash);
 
   return newdat;
 
+}
+
+function clusterBin(datNodes,datLinks){
+  console.log(datLinks)
+  if (datLinks.length===0){
+    return [{"nodes":1,"num":datNodes.length}]
+  } else {
+    var hash = [];
+    datLinks.forEach(function(d) {
+      hash[hash.length] = d.source + "," + d.target;
+
+    });
+    while (testHash(hash)==false){
+      hash = reduceHash(hash);
+    }
+
+    return getNums(hash)
+  }
+}
+
+
+function getNums(hash){
+  xxx = hash.map(function(d){var str = d.split(",");return str.length})
+  var arr = [];
+  for (var i in unique(xxx)){
+    var val = unique(xxx)[i]
+    var num = countInArray(xxx,val)
+    arr.push({"nodes": +val, "num":num})
+  }
+  return arr;
+}
+
+
+
+function countInArray(array, what) {
+    var count = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === what) {
+            count++;
+        }
+    }
+    return count;
 }
 
 function reduceHash(hash){

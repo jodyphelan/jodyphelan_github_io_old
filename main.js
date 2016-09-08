@@ -3,7 +3,7 @@
 function initData(SNPs,clusters){
 
 
-  console.log(clusters);
+  //console.log(clusters);
   generateGraphJSON(SNPs);
 
   function generateGraphJSON(SNPs){
@@ -13,12 +13,17 @@ function initData(SNPs,clusters){
     })));
   }
   if (clusters!=0){
-    console.log(graph.links)
     graph = reduceByCluster(graph.nodes,graph.links,clusters);
+
   }
+  console.log(clusters)
+  console.log(graph.links)
+
+  bins = clusterBin(graph.nodes,graph.links);
+
   raw.nodes = JSON.parse(JSON.stringify(graph.nodes));
   raw.links = JSON.parse(JSON.stringify(graph.links));
-  console.log(graph)
+  //console.log(graph)
 }
 
 
@@ -35,7 +40,7 @@ function initForce(){
     .links(graph.links);
 
   force.linkDistance(function(link) {
-    console.log(linkScale(link.value));
+    //console.log(linkScale(link.value));
     return linkScale(link.value);
   });
 
@@ -50,7 +55,7 @@ function initForce(){
 
 function drawGraph(){
 
-  console.log("SNPs: " + SNPs)
+  //console.log("SNPs: " + SNPs)
 
   g.selectAll("*").remove();
 
@@ -119,7 +124,7 @@ function drawGraph(){
 //    }
 //     document.getElementById("spar").innerHTML = htmltext;
     tableCreate(x)
-//    console.log(x);
+//    //console.log(x);
   });
 
   links.on("mouseover",function(d) {
@@ -141,7 +146,7 @@ function drawGraph(){
   d3.select(window).on("resize", resize);
 
 // This actually starts the force simulation and tracks the coordinate changes
-    console.log("Running Simulation")
+    //console.log("Running Simulation")
   force.on("tick",function(){
 
     nodes
@@ -207,10 +212,10 @@ function drawMap(){
     update();
 
     function update() {
-      console.log("readed point 1")
+      //console.log("readed point 1")
       mapcircles.attr("transform",
       function(d) {
-        console.log(d)
+        //console.log(d)
         return "translate("+
           map.latLngToLayerPoint(d.LatLng).x +","+
           map.latLngToLayerPoint(d.LatLng).y +")";
@@ -227,5 +232,83 @@ function drawMap(){
 
 
 
+
+}
+
+
+
+function initHist(){
+  var margin = {top: 10, right: 20, bottom: 20, left: 30},
+      width = $("#menu").width() - margin.left - margin.right,
+      height = 150 - margin.top - margin.bottom;
+  if(typeof histSvg !== 'undefined'){mainSvg.remove();}
+  mainSvg = d3.select("#menu").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+  histSvg = mainSvg
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          bins.forEach(function(bin) {
+             bin.nodes = +bin.nodes;
+             bin.num = +bin.num;
+          });
+          console.log(bins.map(function(d){return(d.num)}))
+          bins.forEach(function(bin) {
+             bin.nodes = +bin.nodes;
+             bin.num = +bin.num;
+          });
+          var maxnodes = bins.map(function(d){return(d.nodes)}).reduce(function(a,b){if (a>b){return a} else {return b}});
+
+
+          newbins = [];
+
+          var w = 1;
+          maxnodes = maxnodes +w;
+          for(var i=w;i<=maxnodes;i=i+w){
+            var obj = {};
+            obj.offset = i-w;
+            var val = 0;
+            bins.forEach(function(dat){
+              if((dat.nodes<=i) && (dat.nodes>i-w)){
+                val += dat.num;
+              }
+            });
+            obj.height = val;
+            obj.width = w;
+            newbins.push(obj);
+          }
+          var maxnums = newbins.map(function(d){return(d.height)}).reduce(function(a,b){if (a>b){return a} else {return b}});
+          yaxis = d3.scale.linear().domain([0,maxnums]).range([height,0])
+          xaxis = d3.scale.linear().domain([0,maxnodes]).range([0,width])
+
+          console.log(maxnodes)
+
+          var xticknum = 4;
+          var yticknum = 5;
+
+          histSvg.selectAll(".bin")
+            .data(newbins).enter()
+            .append("rect")
+            .attr("class", "bin")
+            .attr("x", function(d) { return xaxis(d.offset); })
+            .attr("width", function(d) { return xaxis(d.width) - 1; })
+            .attr("y", function(d) { return yaxis(d.height); })
+            .attr("height", function(d) { return height - yaxis(d.height); });
+
+          histSvg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.svg.axis()
+              .scale(xaxis)
+              .ticks(xticknum)
+              .orient("bottom"));
+
+          histSvg.append("g")
+              .attr("class", "y axis")
+              .call(d3.svg.axis()
+              .scale(yaxis)
+              .ticks(yticknum)
+              .orient("left"));
 
 }
