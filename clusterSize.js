@@ -82,6 +82,63 @@ function clusterBin(datNodes,datLinks){
 }
 
 
+
+
+
+
+function colourClusters(datNodes,datLinks){
+  if (datLinks.length===0){
+    return [{"nodes":1,"num":datNodes.length}]
+  } else {
+    var hash = [];
+    datLinks.forEach(function(d) {
+      hash[hash.length] = d.source + "," + d.target;
+
+    });
+    while (testHash(hash)==false){
+      hash = reduceHash(hash);
+    }
+    colGroup = 1;
+    for (i in hash){
+      var arr = hash[i].split(",")
+
+      for( j in arr){
+
+        graph.nodes[arr[j]].group = colGroup;
+      }
+      ++colGroup;
+    }
+    drawGraph();
+    drawMap();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function getNums(hash){
   xxx = hash.map(function(d){var str = d.split(",");return str.length})
   var arr = [];

@@ -30,9 +30,14 @@
       Sample:
     </p>
     <hr>
+    <button id="colourNodeBtn" disabled="true" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+      Colour Clusters
+    </button>
+
     <p id="spar">
 
     </p>
+    <hr>
   </div>
   <div class="col-md-5" id="graph">
 
@@ -59,6 +64,8 @@ d3.select("#nValue").on("input", function() {
   initHist();
   drawMap();
   drawGraph();
+  if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
+
 });
 
 d3.select("#cValue").on("input", function(){
@@ -68,7 +75,14 @@ d3.select("#cValue").on("input", function(){
   initHist();
   drawMap();
   drawGraph();
+  console.log(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b}))
+ if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
 })
+
+d3.select("#colourNodeBtn").on("click", function(){
+  colourClusters(raw.nodes,raw.links)
+});
+
 
 
   svg = d3.select("#graph").append("svg");

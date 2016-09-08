@@ -195,7 +195,10 @@ function drawMap(){
       .enter().append("circle")
       .style("stroke", "black")
       .style("opacity", .6)
-      .style("fill", "red")
+      .style("fill",function (d){
+        if (isNumber(d.group) && d.group>=0) return color(d.group);
+        else return default_node_color;
+      })
       .attr("r", 20);
 
 
@@ -204,7 +207,7 @@ function drawMap(){
       .enter().append("line")
       .attr("class","link")
       .style("stroke-width",1)
-      .style("stroke","red")
+      .style("stroke","yellow")
       .style("opacity", .6);
 
 
