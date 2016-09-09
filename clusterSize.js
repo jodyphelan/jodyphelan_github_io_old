@@ -108,6 +108,8 @@ function colourClusters(datNodes,datLinks){
       }
       ++colGroup;
     }
+    console.log("initForce")
+    initForce();
     drawGraph();
     drawMap();
   }

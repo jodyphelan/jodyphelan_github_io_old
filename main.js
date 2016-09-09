@@ -199,7 +199,7 @@ function drawMap(){
         if (isNumber(d.group) && d.group>=0) return color(d.group);
         else return default_node_color;
       })
-      .attr("r", 20);
+      .attr("r", 10);
 
 
     var maplinks = mapg.selectAll(".link")
@@ -242,10 +242,10 @@ function drawMap(){
 
 function initHist(){
   var margin = {top: 10, right: 20, bottom: 20, left: 30},
-      width = $("#menu").width() - margin.left - margin.right,
+      width = $("#info").width()*0.95 - margin.left - margin.right,
       height = 150 - margin.top - margin.bottom;
   if(typeof histSvg !== 'undefined'){mainSvg.remove();}
-  mainSvg = d3.select("#menu").append("svg")
+  mainSvg = d3.select("#info").append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
   histSvg = mainSvg
