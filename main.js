@@ -168,11 +168,12 @@ function drawGraph(){
 
 
 function initMap(){
-map = L.map('map').setView([0, 0], 1);
-L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
+  console.log("Zoom: " + mapZoom())
+  map = L.map('map').setView(mapCoords(), mapZoom());
+  L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
 
   /* Initialize the SVG layer */
-map._initPathRoot()
+  map._initPathRoot()
 
   /* We simply pick up the SVG from the map object */
   mapsvg = d3.select("#map").select("svg"),

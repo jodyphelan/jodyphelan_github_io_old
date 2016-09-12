@@ -14,7 +14,7 @@ function resize() {
  function highlightNode(d){
 
    circle.style("fill",function(o){
-     if (d.id==o.id) return "grey"
+     if (d.id==o.id) return "yellow"
      else if (isNumber(o.group) && o.group>=0) return color(o.group);
    });
  }

@@ -8,10 +8,18 @@
   <script src="clusterSize.js"></script>
   <script src="useful.js"></script>
   <script src="jquery-3.1.0.min.js"></script>
-  <link rel="stylesheet" href="leaflet.css">
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css">
   <link rel="stylesheet" href="styles.css">
-  <script src="leaflet.js"></script>
-
+  <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+  <style>
+    .row{
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #graphSvg{
+      background-color: black;
+    }
+  </style>
 </head>
 <body>
 
@@ -25,6 +33,12 @@
       Min Cluster Size:
       <input type="number" min="0" max="500" step="1" value="0" id="cValue">
     </p>
+    <p>
+      <form class="form-search">
+      <input type="text" class="input-medium search-query" value="" id="nodeName">
+      <button id="nodeSearch" type="button" class="btn btn-primary">Search</button>
+    </form>
+    </p>
     <hr>
     <p id="node">
       Sample:
@@ -37,11 +51,11 @@
 
     <hr>
   </div>
-  <div class="col-md-5" id="graph">
+  <div class="col-md-6" id="graph">
 
   </div>
 
-  <div class="col-md-5">
+  <div class="col-md-4">
     <div class="row">
       <div id="map" style="width: 100%; height: 50vh"></div>
 
@@ -94,9 +108,14 @@ d3.select("#colourNodeBtn").on("click", function(){
   colourClusters(raw.nodes,raw.links)
 });
 
+d3.select("#nodeSearch").on("click", function(){
+  var nodeName =$("#nodeName").val()
+  console.log(nodeName)
+  searchForNode(nodeName)
+})
 
 
-  svg = d3.select("#graph").append("svg");
+  svg = d3.select("#graph").append("svg").attr("id","graphSvg");
 // Change the style of the cursor when over svg elements
   svg.style("cursor", "crosshair");
   g = svg.append("g");
