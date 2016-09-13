@@ -24,6 +24,9 @@ function nodeByIdx(i,nodes){
 
 function searchForNode(node){
   if(isInArray(node,graph.nodes.map(function(d){return d.id}))===false){alert("ID not found");return;}
+  var htmltext = "Sample: " + node;
+  document.getElementById("node").innerHTML = htmltext;
+
   var cx;
   var cy;
   graph.nodes.forEach(function(d){

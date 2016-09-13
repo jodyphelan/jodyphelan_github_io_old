@@ -263,7 +263,7 @@ function initHist(){
              bin.num = +bin.num;
           });
           var maxnodes = bins.map(function(d){return(d.nodes)}).reduce(function(a,b){if (a>b){return a} else {return b}});
-
+          var minnodes = bins.map(function(d){return(d.nodes)}).reduce(function(a,b){if (a<b){return a} else {return b}});
 
           newbins = [];
 
@@ -282,11 +282,13 @@ function initHist(){
             obj.width = w;
             newbins.push(obj);
           }
+
           var maxnums = newbins.map(function(d){return(d.height)}).reduce(function(a,b){if (a>b){return a} else {return b}});
+
           yaxis = d3.scale.linear().domain([0,maxnums]).range([height,0])
           xaxis = d3.scale.linear().domain([0,maxnodes]).range([0,width])
 
-          console.log(maxnodes)
+          console.log(minnodes)
 
           var xticknum = 4;
           var yticknum = 5;
@@ -306,13 +308,24 @@ function initHist(){
               .call(d3.svg.axis()
               .scale(xaxis)
               .ticks(xticknum)
-              .orient("bottom"));
+              .orient("bottom"))
+            .append("text")
+              .attr("y", -10)
+              .attr("x", width)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Custer Size");
 
           histSvg.append("g")
               .attr("class", "y axis")
               .call(d3.svg.axis()
               .scale(yaxis)
               .ticks(yticknum)
-              .orient("left"));
-
+              .orient("left"))
+            .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 3)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Frequency");
 }
