@@ -4,14 +4,12 @@ function initData(SNPs,clusters){
 
 
   //console.log(clusters);
-  generateGraphJSON(SNPs);
 
-  function generateGraphJSON(SNPs){
-    graph.nodes = data.nodes
-    graph.links = JSON.parse(JSON.stringify(data.links.filter(function(dat){
-      if(dat.value<SNPs){return dat;}
+  tempNodes = JSON.parse(JSON.stringify(data.nodes.filter(function(dat){
+      if(dat.value>=SNPs){return dat;}
     })));
-  }
+  graph = reindexEdges(JSON.parse(JSON.stringify(data.links)),JSON.parse(JSON.stringify(data.nodes)),tempNodes)
+
   if (clusters!=0){
     graph = reduceByCluster(graph.nodes,graph.links,clusters);
 
@@ -39,10 +37,10 @@ function initForce(){
     .nodes(graph.nodes)
     .links(graph.links);
 
-  force.linkDistance(function(link) {
-    //console.log(linkScale(link.value));
-    return linkScale(link.value);
-  });
+//  force.linkDistance(function(link) {
+
+//    return linkScale(link.value);
+//  });
 
   force.start();
 
@@ -64,10 +62,7 @@ function drawGraph(){
     .append("line")
     .attr("class","link")
     .style("stroke-width",nominal_stroke)
-    .style("stroke", function(d) {
-	    if (isNumber(d.score) && d.score>=0) return color(d.score);
-	    else return default_link_color;
-    })
+    .style("stroke", function(d){ return d.value=="Employee" ? "white" : "red"})
 
   nodes = g.selectAll(".node")
     .data(graph.nodes).enter()
@@ -80,18 +75,23 @@ function drawGraph(){
   circle = nodes.append("path")
     .attr("d", d3.svg.symbol()
       .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
-      .type(function(d) { return d.type; })
+      .type(function(d) {
+        switch (d.type) {
+          case "dataCenter":
+            return "square";
+          case "event":
+            return "cross";
+          default:
+            return "circle";
+        }
+      })
     )
     .style("fill",function (d){
-      if (isNumber(d.group) && d.group>=0) return color(d.group);
-      else return default_node_color;
+      console.log(d.value + " | " + colorscale(d.value))
+      return colorscale(d.value)
     })
     .style("stroke-width", nominal_stroke)
-    .style("stroke", function(d){
-
-      if (isNumber(d.hiv) && d.hiv>0) return ("red")
-      else return "white"
-    })
+    .style("stroke",  "white")
 
 
 
@@ -179,28 +179,52 @@ function initMap(){
   mapsvg = d3.select("#map").select("svg"),
   mapg = mapsvg.append("g");
 
-  /* Add a LatLng object to each item in the dataset */
-  data.nodes.forEach(function(d) {
-    d.LatLng = new L.LatLng(d.coordinates[0],	d.coordinates[1])
-  });
+
 }
 
 
 function drawMap(){
 
+  /* Add a LatLng object to each item in the dataset */
+  graph.nodes.forEach(function(d) {
+    d.LatLng = new L.LatLng(d.coordinates[0],	d.coordinates[1])
+  });
+
+
+
 
     mapg.selectAll("*").remove();
 
-    var mapcircles = mapg.selectAll("circle")
-      .data(graph.nodes)
-      .enter().append("circle")
-      .style("stroke", "black")
-      .style("opacity", .6)
+    var mapnodes = mapg.selectAll(".node")
+      .data(graph.nodes).enter()
+      .append("g")
+      .attr("class","node")
+
+
+    mapcircles = mapnodes.append("path")
+      .attr("d", d3.svg.symbol()
+        .size(function(d) { return Math.PI*Math.pow(size(d.size)||nominal_base_node_size,2); })
+        .type(function(d) {
+          switch (d.type) {
+            case "dataCenter":
+              return "square";
+            case "event":
+              return "cross";
+            default:
+              return "circle";
+          }
+        })
+      )
       .style("fill",function (d){
-        if (isNumber(d.group) && d.group>=0) return color(d.group);
-        else return default_node_color;
+        return colorscale(d.value)
       })
-      .attr("r", 10);
+      .style("opacity", .8)
+
+      .style("stroke", "black")
+
+
+
+
 
 
     var maplinks = mapg.selectAll(".link")
@@ -208,7 +232,7 @@ function drawMap(){
       .enter().append("line")
       .attr("class","link")
       .style("stroke-width",1)
-      .style("stroke","yellow")
+      .style("stroke",function(d){ return d.value=="Employee" ? "yellow" : "red"})
       .style("opacity", .6);
 
 
@@ -225,6 +249,9 @@ function drawMap(){
           map.latLngToLayerPoint(d.LatLng).y +")";
         }
       )
+
+
+
 
       maplinks
         .attr("x1",function(d){return map.latLngToLayerPoint(d.source.LatLng).x})

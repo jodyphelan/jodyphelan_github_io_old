@@ -129,3 +129,52 @@ function tableCreate(edges) {
     tbl.appendChild(tbdy);
     spar.appendChild(tbl)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+simulateChange = function(type){
+
+
+
+
+  if (type=="event"){
+    newNodeObj = {"id":"Event","type":"event","coordinates": [51.504347,-0.020461],"value":1}
+    data.nodes.push(newNodeObj)
+    newEdgeObj = {"source": 12, "target": 0,"value":"Canary wharf attack"}
+    data.links.push(newEdgeObj)
+    newEdgeObj = {"source": 12, "target": 1,"value":"Canary wharf attack"}
+    data.links.push(newEdgeObj)
+    newEdgeObj = {"source": 12, "target": 2,"value":"Canary wharf attack"}
+    data.links.push(newEdgeObj)
+    data.nodes[0].value += 0.5
+    data.nodes[1].value += 0.5
+    data.nodes[2].value += 0.5
+  } else if (type=="person"){
+    data.nodes[9].value += 0.5
+    data.nodes[0].value += 0.5
+
+    newEdgeObj = {"source": 9, "target": 0,"value":"Suscpicious access"}
+    data.links.push(newEdgeObj)
+  }
+  initData(SNPs,Clusters);
+  initForce();
+  initHist();
+  drawMap();
+  drawGraph();
+
+
+}

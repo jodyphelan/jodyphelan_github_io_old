@@ -4,8 +4,8 @@ var Clusters = 0;
 var graph = {};
 var raw = {};
 
-var w = window.innerWidth;
-var h = window.innerHeight;
+var w = $("#graph").width();
+var h = $("#graph").height();
 
 var default_node_color = "#ccc";
 //var default_node_color = "rgb(3,190,100)";
@@ -27,7 +27,9 @@ var outline = false;
 
 var focus_node = null, highlight_node = null;
 
-var color = d3.scale.category10();
+var colorscale = d3.scale.linear()
+							.domain([0,1])
+							.range(["steelblue","red"]);
 
 var linkScale = d3.scale.linear()
   .domain([Math.min.apply(Math,data.links.map(function(d){return Number(d.value)})),Math.max.apply(Math,data.links.map(function(d){return Number(d.value)}))])
@@ -47,7 +49,17 @@ zoom.on("zoom", function() {
   if (nominal_base_node_size*zoom.scale()>max_base_node_size) base_radius = max_base_node_size/zoom.scale();
   circle.attr("d", d3.svg.symbol()
     .size(function(d) { return Math.PI*Math.pow(size(d.size)*base_radius/nominal_base_node_size||base_radius,2); })
-    .type(function(d) { return d.type; }))
+    .type(function(d) {
+      switch (d.type) {
+        case "dataCenter":
+          return "square";
+				case "event":
+					return "cross";
+        default:
+          return "circle";
+      }
+    })
+  )
 
   //circle.attr("r", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); })
 //  	if (!text_center) text.attr("dx", function(d) { return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
