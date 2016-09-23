@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <script src="data.json"></script>
+  <script src="d3.v3.min.js"></script>
+  <script src="clusterSize.js"></script>
+  <script src="useful.js"></script>
+  <script src="jquery-3.1.0.min.js"></script>
+  <link rel="stylesheet" href="leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="leaflet.js"></script>
+  <style>
+    .row{
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #graphSvg{
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+
+<div class="row" >
+  <div class="col-md-2" id="menu">
+    <p>
+      Num SNPs:
+      <input type="number" min="0" max="1" step="0.1" value="0" id="nValue">
+    </p>
+    <p>
+      Min Cluster Size:
+      <input type="number" min="0" max="500" step="1" value="0" id="cValue">
+    </p>
+    <p>
+
+      <input type="text" class="input-medium" value="" id="nodeName">
+      <button id="nodeSearch" type="button" class="btn btn-primary">Search</button>
+
+    </p>
+    <hr>
+    <p id="node">
+      Sample:
+    </p>
+    <hr>
+    <button id="colourNodeBtn" disabled="true" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+      Colour Clusters
+    </button>
+
+
+    <hr>
+  </div>
+
+
+
+  <div class="col-md-6" id="graph">
+
+  </div>
+
+  <div class="col-md-4">
+    <div class="row">
+
+      <div id="map" style="width: 100%; height: 50vh"></div>
+
+    </div>
+    <div class="row" id="info" style="height: 50vh; overflow: scroll;">
+      <div class="row">
+          <hr>
+        <p id="spar">
+
+        </p>
+        <hr>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>
+
+
+<script src="definitions.js"></script>
+<script src="functions.js"></script>
+<script src="main.js"></script>
+
+<script>
+
+d3.select("#nValue").on("input", function() {
+  SNPs = this.value;
+  initData(SNPs,Clusters);
+  initForce();
+  initHist();
+  drawMap();
+  drawGraph();
+  if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
+
+});
+
+d3.select("#cValue").on("input", function(){
+  Clusters = this.value;
+  initData(SNPs,Clusters);
+  initForce();
+  initHist();
+  drawMap();
+  drawGraph();
+  console.log(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b}))
+ if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
+})
+
+d3.select("#colourNodeBtn").on("click", function(){
+  colourClusters(raw.nodes,raw.links)
+});
+
+d3.select("#nodeSearch").on("click", function(){
+  var nodeName =$("#nodeName").val()
+  console.log(nodeName)
+  searchForNode(nodeName)
+})
+
+
+  svg = d3.select("#graph").append("svg").attr("id","graphSvg");
+// Change the style of the cursor when over svg elements
+  svg.style("cursor", "crosshair");
+  g = svg.append("g");
+  svg.call(zoom);
+
+
+
+
+
+  initData(0,0);
+  initForce();
+  initMap();
+  initHist();
+
+  drawMap();
+  drawGraph();
+
+
+
+  </script>
+
+
+  </body>
+  </html>
