@@ -1,0 +1,313 @@
+<html>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3-force.v1.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<style>
+  .edge{
+    stroke: white;
+    stroke-width: 1;
+  }
+  .mapSVG{
+    background-color: black;
+  }
+  .node{
+    fill: white;
+    stroke: white;
+  }
+
+  .node-active{
+    fill: yellow;
+    stroke: white;
+  }
+
+  div.container {
+    width: 100%;
+    border: 1px solid gray;
+  }
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    height: 18px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+
+
+  .ticks {
+    font: 10px sans-serif;
+  }
+
+  .track,
+  .track-inset,
+  .track-overlay {
+    stroke-linecap: round;
+  }
+
+  .track {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 10px;
+  }
+
+  .track-inset {
+    stroke: #ddd;
+    stroke-width: 8px;
+  }
+
+  .track-overlay {
+    pointer-events: stroke;
+    stroke-width: 50px;
+    cursor: crosshair;
+  }
+
+  .handle {
+    fill: #fff;
+    stroke: #000;
+    stroke-opacity: 0.5;
+    stroke-width: 1.25px;
+  }
+
+
+
+
+</style>
+<body>
+
+<div class="col-md-2" id="toolsDiv"></div>
+<div class="col-md-7" id="graphDiv"></div>
+<div class="col-md-3"></div>
+
+<script>
+
+////////////////////
+////// GRAPH //////
+///////////////////
+
+var defaultNodeCol = "white",
+    highlightCol = "yellow";
+
+var height = window.innerHeight;
+var graphWidth =  $("#graphDiv").width();
+
+var graphSvg = d3.select("#graphDiv").append("svg").attr("height",height).attr("width",graphWidth).attr("class","mapSVG");
+
+var value = 0;
+
+graphSvg.call(
+                d3.zoom()
+                  .scaleExtent([1 / 2, 4])
+                  .on("zoom", zoomed)
+              )
+var graphG = graphSvg.append("g");
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+
+
+function zoomed() {
+  simulation.stop();
+  graphG.attr("transform", d3.event.transform);
+}
+
+
+
+
+var simulation = d3.forceSimulation()
+              .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+              .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+              .force("y", d3.forceY(height / 2).strength(0.1))
+              .force("charge", d3.forceManyBody().strength(-1000))
+              .force("link", d3.forceLink().id(function(d) { return d.id; }))
+              .alphaTarget(0)
+              .alphaDecay(0.1)
+d3.json("data.json",function(error,data){
+
+
+
+  function initGraph(tempData){
+    var tempGraphEdges = graphG.selectAll(".edge").data(tempData.edges, function(d){return (d.source+"-"+d.target)})
+    tempGraphEdges.exit().remove();
+
+    tempGraphEdges.enter()
+                  .append("line")
+                  .attr("class","edge")
+
+    var tempGraphNodes = graphG.selectAll(".node").data(tempData.nodes,function(d){return d.id})
+    tempGraphNodes.exit().remove();
+
+    tempGraphNodes.enter()
+                  .append("path")
+                  .attr("class","node")
+                  .attr("d",d3.symbol())
+                  .style("fill", function(d){if (d.colour){return d.colour}})
+                  .call(
+                        d3.drag()
+                          .on("start",dragstarted)
+                          .on("drag",dragged)
+                          .on("end",dragended)
+                        );
+
+    var graphEdges = graphG.selectAll(".edge")
+    var graphNodes = graphG.selectAll(".node")
+
+
+    graphNodes
+      .on("mouseover",function(d){
+        d3.select(this)
+          .style("fill",highlightCol);
+        div.transition()
+          .duration(200)
+          .style("opacity", .9);
+        div.html("ID: " +d.id)
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+
+      })
+      .on("mouseout",function(d){
+
+        if (d.colour){d3.select(this).style("fill",d.colour)}
+        else {d3.select(this).style("fill",defaultNodeCol)}
+
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
+      })
+
+
+
+    simulation.nodes(tempData.nodes)
+              .on("tick",simulationUpdate);
+
+    simulation.force("link")
+              .links(tempData.edges);
+
+
+
+    function dragstarted(d) {
+      simulation.alphaTarget(1).restart();
+
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(d) {
+//      simulation.alphaDecay(0);
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(0).alphaDecay(0.1);
+      d.fx = null;
+      d.fy = null;
+    }
+
+
+
+    function simulationUpdate(){
+      graphNodes
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+
+      graphEdges
+        .attr("x1",function(d){return d.source.x})
+        .attr("x2",function(d){return d.target.x})
+        .attr("y1",function(d){return d.source.y})
+        .attr("y2",function(d){return d.target.y})
+    }
+
+
+  }
+
+  initGraph(data)
+
+
+
+
+  ////////////////////
+  ////// SLIDER //////
+  ////////////////////
+
+
+  var sliderMargin = {left:10,right:10,top:10,bottom:10}
+  var toolsDivWidth =  $("#toolsDiv").width();
+  var sliderWidth = toolsDivWidth - sliderMargin.left - sliderMargin.right;
+  var sliderSVG = d3.select("#toolsDiv").append("svg").attr("height",120).attr("width",toolsDivWidth);
+
+    var sliderX = d3.scaleLinear().domain([0,10]).range([0,sliderWidth]).clamp(true)
+
+  var sliderG = sliderSVG.append("g")
+                        .attr("class","slider")
+                        .attr("transform", "translate(" + sliderMargin.left + "," + sliderMargin.top + ")");
+
+  sliderG.append("line")
+      .attr("class", "track")
+      .attr("x1", sliderX.range()[0])
+      .attr("x2", sliderX.range()[1])
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-inset")
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-overlay")
+      .call(d3.drag()
+          .on("start.interrupt", function() { sliderG.interrupt(); })
+          .on("start drag", function() { ;moveSlider(sliderX.invert(d3.event.x)); })
+        );
+
+
+  sliderG.insert("g", ".track-overlay")
+      .attr("class", "ticks")
+      .attr("transform", "translate(0," + 18 + ")")
+    .selectAll("text")
+    .data(sliderX.ticks(10))
+    .enter().append("text")
+      .attr("x", sliderX)
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d; });
+
+
+  var handle = sliderG.insert("circle", ".track-overlay")
+      .attr("class", "handle")
+      .attr("r", 9);
+
+  function moveSlider(h) {
+    handle.attr("cx", sliderX(h));
+    value=h;
+    initData();
+  }
+
+
+  function initData(){
+    var newData = {};
+    newData.nodes = data.nodes.filter(function(d){
+      return d.hiv>value;
+    })
+    newData.edges = data.edges
+    initGraph(newData)
+  }
+
+
+
+
+});
+
+
+
+
+
+
+</script>
+
+
+</body>
+
+</html>
