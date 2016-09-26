@@ -81,7 +81,27 @@
 </style>
 <body>
 
-<div class="col-md-2" id="toolsDiv"></div>
+<div class="col-md-2" id="toolsDiv">
+  <p>
+    Num SNPs:
+    <input type="number" min="0" max="500" step="1" value="0" id="snpInput">
+  </p>
+  <p>
+    Min Cluster Size:
+    <input type="number" min="1" max="500" step="1" value="0" id="clusterInput">
+  </p>
+  <p>
+
+    <input type="text" class="input-medium" value="" id="nodeName">
+    <button id="nodeSearch" type="button" class="btn btn-primary">Search</button>
+
+  </p>
+  <hr>
+  <p id="node">
+    Sample:
+  </p>
+</div>
+
 <div class="col-md-7" id="graphDiv"></div>
 <div class="col-md-3"></div>
 
@@ -90,8 +110,10 @@
 ////////////////////
 ////// GRAPH //////
 ///////////////////
+var snpCutoff = 0;
+var clusterCutoff = 0;
 
-var defaultNodeCol = "white",
+var defaultNodeCol = "blue",
     highlightCol = "yellow";
 
 var height = window.innerHeight;
@@ -103,7 +125,7 @@ var value = 0;
 
 graphSvg.call(
                 d3.zoom()
-                  .scaleExtent([1 / 2, 4])
+                  .scaleExtent([0.1, 4])
                   .on("zoom", zoomed)
               )
 var graphG = graphSvg.append("g");
@@ -129,9 +151,12 @@ var simulation = d3.forceSimulation()
               .force("charge", d3.forceManyBody().strength(-1000))
               .force("link", d3.forceLink().id(function(d) { return d.id; }))
               .alphaTarget(0)
-              .alphaDecay(0.1)
-d3.json("data.json",function(error,data){
+              .alphaDecay(0.05)
 
+var symbolScale = d3.scaleOrdinal().domain(["circle","cross","diamond","square","star","triangle","wye"]).range(d3.symbols)
+
+
+d3.json("data.json",function(error,data){
 
 
   function initGraph(tempData){
@@ -139,7 +164,7 @@ d3.json("data.json",function(error,data){
     tempGraphEdges.exit().remove();
 
     tempGraphEdges.enter()
-                  .append("line")
+                  .insert("line",":first-child")
                   .attr("class","edge")
 
     var tempGraphNodes = graphG.selectAll(".node").data(tempData.nodes,function(d){return d.id})
@@ -148,8 +173,17 @@ d3.json("data.json",function(error,data){
     tempGraphNodes.enter()
                   .append("path")
                   .attr("class","node")
-                  .attr("d",d3.symbol())
-                  .style("fill", function(d){if (d.colour){return d.colour}})
+                  .attr("d", d3.symbol()
+                    .type(function(d) { return symbolScale(d.shape); })
+                    .size(function(d) {
+                      if (d.children){ return 2000;}
+                      else {return 500;}
+                    })
+                  )
+                  .style("fill", function(d){
+                    if (d.col){return d.col}
+                    else {return defaultNodeCol}
+                })
                   .call(
                         d3.drag()
                           .on("start",dragstarted)
@@ -175,7 +209,7 @@ d3.json("data.json",function(error,data){
       })
       .on("mouseout",function(d){
 
-        if (d.colour){d3.select(this).style("fill",d.colour)}
+        if (d.col){d3.select(this).style("fill",d.col)}
         else {d3.select(this).style("fill",defaultNodeCol)}
 
         div.transition()
@@ -228,8 +262,179 @@ d3.json("data.json",function(error,data){
 
 
   }
-
+  console.log(error)
   initGraph(data)
+
+  ////////////////////
+  ////// Forms //////
+  ////////////////////
+
+  d3.select("#snpInput").on("input", function() {
+    snpCutoff = this.value;
+    initData()
+
+  })
+
+  d3.select("#clusterInput").on("input", function() {
+    clusterCutoff = this.value;
+
+    initData()
+
+  })
+
+
+
+  function initData(){
+    var tempEdges = data.edges.filter(function(d){
+      return d.value<snpCutoff;
+    })
+
+
+
+
+    var newData = reduceByCluster(tempEdges,data.nodes)
+    console.log(newData)
+    initGraph(newData)
+    simulation.alpha(1).restart()
+
+
+    console.log(data)
+    function reduceByCluster(datEdges,oldNodes){
+      console.log(clusterCutoff)
+      if (+clusterCutoff<=1){
+        var reducedData = {"nodes": oldNodes,"edges": datEdges}
+        console.log(reducedData)
+        return reducedData;
+      }
+
+      var hash = [];
+      datEdges.forEach(function(d) {
+        hash[hash.length] = d.source.id + "," + d.target.id;
+      });
+
+
+      while (testHash(hash)==false){
+        hash = reduceHash(hash);
+      }
+
+      console.log("Reduced hash:")
+      console.log(hash)
+
+      var newNodes = [];
+
+      hash.forEach(function(d){
+        var nodes = d.split(",");
+        var clusterLength = nodes.length;
+        if (clusterLength >= clusterCutoff){
+          nodes.forEach(function(o){
+            oldNodes.forEach(function(p){
+              if (o===p.id){ newNodes.push(p)}
+            })
+          })
+        }
+      })
+
+
+      var newEdges = [];
+      var newNodeNames = newNodes.map(function(d){return d.id})
+      datEdges.forEach(function(d){
+        if ((isInArray(d.source.id,newNodeNames)) || (isInArray(d.target.id,newNodeNames))){
+          newEdges.push(d);
+        }
+      })
+      var reducedData = {"nodes": newNodes,"edges": newEdges}
+      console.log(reducedData)
+      return reducedData;
+
+      ////////////////////////////////////
+      //// Functions for computations ////
+      ////////////////////////////////////
+
+      function intersect(a, b) {
+          var t;
+          if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
+          return a.filter(function (e) {
+              if (b.indexOf(e) !== -1) return true;
+          });
+      }
+
+      function unique(arr){
+      	var n = {},r=[];
+      	for(var i = 0; i < arr.length; i++)
+      	{
+      		if (!n[arr[i]])
+      		{
+      			n[arr[i]] = true;
+      			r.push(arr[i]);
+      		}
+      	}
+      	return r;
+      }
+
+
+      function reduceHash(hash){
+        var newHash = [];
+        var numsAdded = [];
+
+        for (i in hash){
+          var ivals = hash[i].split(",");
+          var testVal = false
+          for (k in ivals){
+            var ival = ivals[k]
+            if(isInArray(ival, numsAdded)==true){
+              testVal = true;
+            }
+          }
+          if (testVal==false){
+            for (k in ivals){
+              numsAdded[numsAdded.length] = ivals[k];
+            }
+            newHash[newHash.length] = hash[i];
+          } else {
+            for (j in newHash){
+              if (i==j){continue}
+              var jvals = newHash[j].split(",");
+              var inter = intersect(ivals,jvals);
+              if (inter.length!=0){
+                newHash[j] = newHash[j] + "," + hash[i];
+              }
+            }
+          }
+        }
+        for (i in newHash){
+          newHash[i] = unique(newHash[i].split(",")).toString(",");
+        }
+        return newHash;
+      }
+
+      function isInArray(value, array) {
+        return array.indexOf(value) > -1;
+      }
+
+      function testHash(hash){
+        var testVal=0;
+        for (i in hash){
+          var ivals = hash[i].split(",");
+          for (j in hash){
+            if (i==j){continue}
+            var jvals = hash[j].split(",");
+            var inter = intersect(ivals,jvals)
+            if (inter.length>0){testVal++}
+          }
+        }
+        if (testVal>0){return false} else {return true}
+      }
+
+    }
+
+
+
+
+  }
+
+
+
+
 
 
 
@@ -260,7 +465,15 @@ d3.json("data.json",function(error,data){
       .attr("class", "track-overlay")
       .call(d3.drag()
           .on("start.interrupt", function() { sliderG.interrupt(); })
-          .on("start drag", function() { ;moveSlider(sliderX.invert(d3.event.x)); })
+          .on("start", function(){
+            simulation.alphaTarget(1).restart();
+          })
+          .on("drag", function() {
+            moveSlider(sliderX.invert(d3.event.x));
+          })
+          .on("end", function(){
+            simulation.alphaTarget(0);
+          })
         );
 
 
@@ -284,17 +497,6 @@ d3.json("data.json",function(error,data){
     value=h;
     initData();
   }
-
-
-  function initData(){
-    var newData = {};
-    newData.nodes = data.nodes.filter(function(d){
-      return d.hiv>value;
-    })
-    newData.edges = data.edges
-    initGraph(newData)
-  }
-
 
 
 
