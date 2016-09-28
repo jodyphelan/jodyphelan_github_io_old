@@ -418,7 +418,19 @@ d3.json("data.json",function(error,data){
       console.log("NewEdges: ");
       console.log(datEdges)
       if (+clusterCutoff<=1){
-        var reducedData = {"nodes": oldNodes,"edges": datEdges}
+        var newEdges = [];
+        var newNodes = [];
+        datEdges.forEach(function(d){
+          if((isInArray(d.source.id,tfNodes)) && (isInArray(d.target.id,tfNodes))){
+              newEdges.push(d);
+          }
+        });
+        oldNodes.forEach(function(d){
+          if((isInArray(d.id,tfNodes))){
+            newNodes.push(d);
+          }
+        });
+        var reducedData = {"nodes": newNodes ,"edges": newEdges}
         console.log(reducedData)
         return reducedData;
       }
