@@ -1,9 +1,9 @@
 <html>
 <meta charset="utf-8">
-<script src="https://d3js.org/d3-force.v1.min.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="jsLib/d3-force.v1.min.js"></script>
+<script src="jsLib/d3.v4.min.js"></script>
 <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="jsLib/jquery.min.js"></script>
 <style>
   table {
     font-family: arial, sans-serif;
@@ -113,9 +113,15 @@
     <button id="nodeSearch" type="button" class="btn btn-primary">Search</button>
 
   </p>
+
   <hr>
   <p id="timeP">
     Time:
+  </p>
+  <div id="sliderDiv"></div>
+  <hr>
+  <p>
+    <button id="downloadGraph" type="button" class="btn btn-primary">Download</button>
   </p>
 </div>
 
@@ -640,7 +646,7 @@ d3.json("data.json",function(error,data){
   var sliderMargin = {left:10,right:10,top:10,bottom:10}
   var toolsDivWidth =  $("#toolsDiv").width();
   var sliderWidth = toolsDivWidth - sliderMargin.left - sliderMargin.right;
-  var sliderSVG = d3.select("#toolsDiv").append("svg").attr("height",120).attr("width",toolsDivWidth);
+  var sliderSVG = d3.select("#sliderDiv").append("svg").attr("height",20).attr("width",toolsDivWidth);
 
 
   var sliderG = sliderSVG.append("g")
@@ -680,6 +686,7 @@ d3.json("data.json",function(error,data){
           .on("start.interrupt", function() { sliderG.interrupt(); })
           .on("start", function(){
             simulation.alphaTarget(0.5).restart();
+            moveSlider(timeScale.invert(d3.event.x))
           })
           .on("drag", function() {
             moveSlider(timeScale.invert(d3.event.x));
@@ -739,6 +746,57 @@ function obj2str(obj){
   var tempStr = "translate(" + obj.x + "," + obj.y + ") scale(" + obj.k + ")"
   return tempStr
 }
+
+
+
+
+
+
+
+d3.select("#downloadGraph").on("click", function(){
+  var html = d3.select(".graphSVG")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+  console.log(html);
+  var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+  var img = '<img src="'+imgsrc+'">';
+//  d3.select("#svgdataurl").html(img);
+
+
+  div.append("canvas")
+  var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+    var img = '<img src="'+imgsrc+'">';
+    d3.select("#svgdataurl").html(img);
+
+
+    var canvas = document.querySelector("canvas"),
+  context = canvas.getContext("2d");
+
+  var image = new Image;
+  image.src = imgsrc;
+  image.onload = function() {
+    context.drawImage(image, 0, 0);
+
+    var canvasdata = canvas.toDataURL("image/png");
+
+    var pngimg = '<img src="'+canvasdata+'">';
+      d3.select("#pngdataurl").html(pngimg);
+
+    var a = document.createElement("a");
+    a.download = "sample.png";
+    a.href = canvasdata;
+    a.click();
+  };
+
+
+});
+
+
+
+
+
 
 
 
