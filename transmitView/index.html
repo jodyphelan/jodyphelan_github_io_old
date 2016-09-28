@@ -679,7 +679,7 @@ d3.json("data.json",function(error,data){
       .call(d3.drag()
           .on("start.interrupt", function() { sliderG.interrupt(); })
           .on("start", function(){
-            simulation.alphaTarget(1).restart();
+            simulation.alphaTarget(0.5).restart();
           })
           .on("drag", function() {
             moveSlider(timeScale.invert(d3.event.x));
