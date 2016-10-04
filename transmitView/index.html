@@ -207,7 +207,7 @@ d3.json("data.json",function(error,data){
 
   function initMap(){
     d3.select("#mapDiv").style("width","100%").style("height","50%")
-    map = L.map('mapDiv').setView([51.608687, -0.147399], 12);
+    map = L.map('mapDiv').setView([51.478333, -0.053547], 12);
     L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
 
     /* Initialize the SVG layer */
@@ -253,10 +253,15 @@ d3.json("data.json",function(error,data){
     var mapEdges = mapG.selectAll(".edge")
     var mapNodes = mapG.selectAll(".node")
 
-    map.on("viewreset", updateMap);
+    map.on("viewreset",updateMap);
+
+
     updateMap();
 
     function updateMap() {
+
+      console.log("mapZoomLevel: " + mapZoomLevel)
+      console.log("actualZoom: " + map._zoom)
 
       function jitter(){
         jit = {};
@@ -268,23 +273,24 @@ d3.json("data.json",function(error,data){
       if (jitterCoordsSwitch==true){
         mapNodes.attr("transform",
         function(d) {
-          if ((!d.jitterCoords) || (map._zoom != mapZoomLevel)){
+
+          if ((!d.jitterCoords) || (map._zoom != d.zoomLevel)){
             var jit = jitter()
             d.jitterCoords = [d.coords[0]+jit.lat,d.coords[1]+jit.lng];
+            d.zoomLevel = map._zoom;
           }
           return "translate("+
             map.latLngToLayerPoint(d.jitterCoords).x + ","+
             map.latLngToLayerPoint(d.jitterCoords).y +")";
           }
         )
-
         mapEdges
           .attr("x1",function(d){return map.latLngToLayerPoint(d.source.jitterCoords).x})
           .attr("x2",function(d){return map.latLngToLayerPoint(d.target.jitterCoords).x})
           .attr("y1",function(d){return map.latLngToLayerPoint(d.source.jitterCoords).y})
           .attr("y2",function(d){return map.latLngToLayerPoint(d.target.jitterCoords).y});
 
-        mapZoomLevel = map._zoom;
+
       } else {
 
         mapNodes.attr("transform",
@@ -303,6 +309,8 @@ d3.json("data.json",function(error,data){
           .attr("y2",function(d){return map.latLngToLayerPoint(d.target.coords).y});
 
       }
+      console.log("reassigning zoom!");
+      mapZoomLevel = JSON.parse(JSON.stringify(map._zoom));
 
     }
   }
