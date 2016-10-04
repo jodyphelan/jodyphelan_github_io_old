@@ -140,6 +140,7 @@
 ////////////////////
 ////// GRAPH //////
 ///////////////////
+var mapZoomLevel;
 var jitterCoordsSwitch = false;
 var snpCutoff = 0;
 var clusterCutoff = 0;
@@ -206,7 +207,7 @@ d3.json("data.json",function(error,data){
 
   function initMap(){
     d3.select("#mapDiv").style("width","100%").style("height","50%")
-    map = L.map('mapDiv').setView([53, 0], 5);
+    map = L.map('mapDiv').setView([51.608687, -0.147399], 12);
     L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
 
     /* Initialize the SVG layer */
@@ -267,8 +268,10 @@ d3.json("data.json",function(error,data){
       if (jitterCoordsSwitch==true){
         mapNodes.attr("transform",
         function(d) {
-          var jit = jitter()
-          d.jitterCoords = [d.coords[0]+jit.lat,d.coords[1]+jit.lng];
+          if ((!d.jitterCoords) || (map._zoom != mapZoomLevel)){
+            var jit = jitter()
+            d.jitterCoords = [d.coords[0]+jit.lat,d.coords[1]+jit.lng];
+          }
           return "translate("+
             map.latLngToLayerPoint(d.jitterCoords).x + ","+
             map.latLngToLayerPoint(d.jitterCoords).y +")";
@@ -281,6 +284,7 @@ d3.json("data.json",function(error,data){
           .attr("y1",function(d){return map.latLngToLayerPoint(d.source.jitterCoords).y})
           .attr("y2",function(d){return map.latLngToLayerPoint(d.target.jitterCoords).y});
 
+        mapZoomLevel = map._zoom;
       } else {
 
         mapNodes.attr("transform",
@@ -406,6 +410,9 @@ d3.json("data.json",function(error,data){
           .style("opacity", 0);
       })
       .on("click",function(d){
+        function edges2full(tempEdges){
+
+        }
         var x = findEdges(d.id,tempData.edges)
         console.log(x)
         tableCreate(x)
