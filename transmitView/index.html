@@ -127,6 +127,11 @@
   Jitter Coordinates
 </button>
   </p>
+  <p>
+    <button id="drawSelectedButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Map all
+</button>
+  </p>
 </div>
 
 <div class="col-md-7" id="graphDiv"></div>
@@ -140,7 +145,7 @@
 ////////////////////
 ////// GRAPH //////
 ///////////////////
-var mapZoomLevel;
+var mapDrawSelected=false;
 var jitterCoordsSwitch = false;
 var snpCutoff = 0;
 var clusterCutoff = 0;
@@ -222,6 +227,8 @@ d3.json("data.json",function(error,data){
   initMap();
 
   function mapDrawNodes(tempData){
+    console.log("TEMPDATA: ")
+    console.log(tempData)
 
     var tempMapEdges = mapG.selectAll(".edge").data(tempData.edges, function(d){return (d.source+"-"+d.target)})
     tempMapEdges.exit().remove();
@@ -260,8 +267,7 @@ d3.json("data.json",function(error,data){
 
     function updateMap() {
 
-      console.log("mapZoomLevel: " + mapZoomLevel)
-      console.log("actualZoom: " + map._zoom)
+
 
       function jitter(){
         jit = {};
@@ -309,8 +315,6 @@ d3.json("data.json",function(error,data){
           .attr("y2",function(d){return map.latLngToLayerPoint(d.target.coords).y});
 
       }
-      console.log("reassigning zoom!");
-      mapZoomLevel = JSON.parse(JSON.stringify(map._zoom));
 
     }
   }
@@ -419,12 +423,24 @@ d3.json("data.json",function(error,data){
       })
       .on("click",function(d){
         function edges2full(tempEdges){
+            var tempArr = []
+            var tempNewData = {nodes: [], edges: tempEdges};
+            tempEdges.forEach(function(d){
+              if (!isInArray(d.source.id,tempArr)){tempArr.push(d.source.id);tempNewData.nodes.push(d.source);}
+              if (!isInArray(d.target.id,tempArr)){tempArr.push(d.target.id);tempNewData.nodes.push(d.target);}
 
+            })
+            return tempNewData;
         }
         var x = findEdges(d.id,tempData.edges)
         console.log(x)
         tableCreate(x)
 
+        if (mapDrawSelected==true){
+          var tempCluster = edges2full(x)
+          console.log(tempCluster)
+          mapDrawNodes(tempCluster)
+        }
       })
 
 
@@ -560,6 +576,21 @@ d3.json("data.json",function(error,data){
 
   })
 
+  d3.select("#drawSelectedButton").on("click", function() {
+    if ($(this).hasClass("active")){
+      $(this).removeClass("active")
+    } else {
+      $(this).addClass("active")
+    }
+    mapDrawSelected = !mapDrawSelected
+    initData()
+    console.log($(this))
+    if (mapDrawSelected){
+      d3.select(this).html("Map selected");
+    } else {
+      d3.select(this).html("Map all");
+    }
+  })
   //////////////////////
   ////// initData //////
   //////////////////////
@@ -577,7 +608,9 @@ d3.json("data.json",function(error,data){
     var newData = reduceByCluster(tempEdges,data.nodes,timeFilteredNodes)
     console.log(newData)
     initGraph(newData)
-    mapDrawNodes(newData)
+    if (mapDrawSelected==false){
+      mapDrawNodes(newData)
+    }
     simulation.alpha(1).restart()
 
 
