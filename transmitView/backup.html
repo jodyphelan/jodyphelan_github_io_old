@@ -1,0 +1,809 @@
+<html>
+<meta charset="utf-8">
+<script src="jsLib/d3-force.v1.min.js"></script>
+<script src="jsLib/d3.v4.min.js"></script>
+<link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="jsLib/jquery.min.js"></script>
+<style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 10px;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+
+
+  .edge{
+    stroke: white;
+    stroke-width: 1;
+  }
+  .graphSVG{
+    background-color: black;
+  }
+  .node{
+    fill: white;
+    stroke: white;
+  }
+
+  .node-active{
+    fill: yellow;
+    stroke: white;
+  }
+
+  div.container {
+    width: 100%;
+    border: 1px solid gray;
+  }
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+
+
+  .ticks {
+    font: 10px sans-serif;
+  }
+
+  .track,
+  .track-inset,
+  .track-overlay {
+    stroke-linecap: round;
+  }
+
+  .track {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 10px;
+  }
+
+  .track-inset {
+    stroke: #ddd;
+    stroke-width: 8px;
+  }
+
+  .track-overlay {
+    pointer-events: stroke;
+    stroke-width: 50px;
+    cursor: crosshair;
+  }
+
+  .handle {
+    fill: #fff;
+    stroke: #000;
+    stroke-opacity: 0.5;
+    stroke-width: 1.25px;
+  }
+
+
+
+
+</style>
+<body>
+
+<div class="col-md-2" id="toolsDiv">
+  <p>
+    Num SNPs:
+    <input type="number" min="0" max="500" step="1" value="0" id="snpInput">
+  </p>
+  <p>
+    Min Cluster Size:
+    <input type="number" min="1" max="500" step="1" value="1" id="clusterInput">
+  </p>
+  <p>
+
+    <input type="text" class="input-medium" value="" id="nodeName">
+    <button id="nodeSearch" type="button" class="btn btn-primary">Search</button>
+
+  </p>
+
+  <hr>
+  <p id="timeP">
+    Time:
+  </p>
+  <div id="sliderDiv"></div>
+  <hr>
+  <p>
+    <button id="downloadGraph" type="button" class="btn btn-primary">Download</button>
+  </p>
+</div>
+
+<div class="col-md-7" id="graphDiv"></div>
+<div class="col-md-3">
+  <p id="sampleTable"></p>
+</div>
+
+<script>
+
+////////////////////
+////// GRAPH //////
+///////////////////
+var snpCutoff = 0;
+var clusterCutoff = 0;
+
+var defaultNodeCol = "white",
+    highlightCol = "yellow";
+
+var height = window.innerHeight;
+var graphWidth =  $("#graphDiv").width();
+
+var graphSvg = d3.select("#graphDiv").append("svg").attr("height",height).attr("width",graphWidth).attr("class","graphSvg");
+
+var value = 0;
+var selectedDate;
+
+var zoom = d3.zoom()
+  .scaleExtent([0.1, 4])
+  .on("zoom", zoomed);
+
+graphSvg.call(zoom);
+
+var graphG = graphSvg.append("g").attr("class","graphG");
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+
+
+function zoomed() {
+  simulation.stop();
+  console.log(d3.event.transform)
+
+  graphG.attr("transform", d3.event.transform);
+}
+
+
+
+
+var simulation = d3.forceSimulation()
+              .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+              .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+              .force("y", d3.forceY(height / 2).strength(0.1))
+              .force("charge", d3.forceManyBody().strength(-1000))
+              .force("link", d3.forceLink().id(function(d) { return d.id; }))
+              .alphaTarget(0)
+              .alphaDecay(0.05)
+
+var symbolScale = d3.scaleOrdinal().domain(["circle","cross","diamond","square","star","triangle","wye"]).range(d3.symbols)
+
+
+d3.json("data.json",function(error,data){
+
+  data.nodes.forEach(function(d){
+      if(d.date){
+        var tempArr = d.date.split("-")
+        var tempDate = new Date(parseFloat(tempArr[2]),parseFloat(tempArr[1])-1,parseFloat(tempArr[0]))
+        d.date = tempDate;
+      } else if (d.children) {
+
+        var newArr = d.children.map(function(o){
+          var tempArr = o.date.split("-")
+          var tempDate = new Date(parseFloat(tempArr[2]),parseFloat(tempArr[1])-1,parseFloat(tempArr[0]))
+          return tempDate
+        })
+        sortArr = newArr.sort(function(a,b){
+            return a - b;
+        });
+        d.date = sortArr[0];
+      }
+  })
+
+  function initGraph(tempData){
+    var tempGraphEdges = graphG.selectAll(".edge").data(tempData.edges, function(d){return (d.source+"-"+d.target)})
+    tempGraphEdges.exit().remove();
+
+    tempGraphEdges.enter()
+                  .insert("line",":first-child")
+                  .attr("class","edge")
+
+    var tempGraphNodes = graphG.selectAll(".node").data(tempData.nodes,function(d){return d.id})
+    tempGraphNodes.exit().remove();
+
+    tempGraphNodes.enter()
+                  .append("path")
+                  .attr("class","node")
+                  .attr("d", d3.symbol()
+                    .type(function(d) { return symbolScale(d.shape); })
+                    .size(function(d) {
+                      if (d.children){ return 2000;}
+                      else {return 500;}
+                    })
+                  )
+                  .style("fill", function(d){
+                    if (d.col){return d.col}
+                    else {return defaultNodeCol}
+                })
+                  .call(
+                        d3.drag()
+                          .on("start",dragstarted)
+                          .on("drag",dragged)
+                          .on("end",dragended)
+                        );
+
+    var graphEdges = graphG.selectAll(".edge")
+    var graphNodes = graphG.selectAll(".node")
+
+
+    graphNodes
+      .on("mouseover",function(d){
+        console.log("x:" + d.x +" y:"+d.y)
+        d3.select(this)
+          .style("fill",highlightCol);
+        div.transition()
+          .duration(200)
+          .style("opacity", .9);
+        var htmlString = "<strong>ID: " + d.id;
+        if (d.children){
+          htmlString += "<br>Identical Nodes: </strong>"
+          d.children.forEach(function(o){
+            htmlString += "<br>" + o.id;
+          })
+        }
+        div.attr("height", 18*htmlString.split("<br>").length)
+        div.html(htmlString)
+
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+      })
+      .on("mouseout",function(d){
+
+        if (d.col){d3.select(this).style("fill",d.col)}
+        else {d3.select(this).style("fill",defaultNodeCol)}
+
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
+      })
+      .on("click",function(d){
+        var x = findEdges(d.id,tempData.edges)
+        console.log(x)
+        tableCreate(x)
+
+      })
+
+
+    simulation.nodes(tempData.nodes)
+              .on("tick",simulationUpdate);
+
+    simulation.force("link")
+              .links(tempData.edges);
+
+
+
+    function dragstarted(d) {
+      simulation.alphaTarget(1).restart();
+
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(d) {
+//      simulation.alphaDecay(0);
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(0).alphaDecay(0.1);
+      d.fx = null;
+      d.fy = null;
+    }
+
+
+
+    function simulationUpdate(){
+      graphNodes
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+
+      graphEdges
+        .attr("x1",function(d){return d.source.x})
+        .attr("x2",function(d){return d.target.x})
+        .attr("y1",function(d){return d.source.y})
+        .attr("y2",function(d){return d.target.y})
+    }
+
+
+
+    ////////////////////
+    ////// SEARCH //////
+    ////////////////////
+
+
+
+    function searchForNode(node){
+      if(isInArray(node,tempData.nodes.map(function(d){return d.id}))===false){alert("ID not found");return;}
+
+      var cx;
+      var cy;
+      tempData.nodes.forEach(function(d){
+        if (d.id===node){
+          cx = d.x;
+          cy = d.y;
+        }
+      });
+
+      var gTranslate = {};
+      var tString = $(".graphG").attr("transform")
+      if (tString){
+          var gTranslate = str2obj(tString);
+
+      } else {
+        gTranslate = {"k":1,"x":0,"y":0};
+      }
+
+      var svgXmid = ($(".graphSvg").width())/2;
+      var svgYmid = ($(".graphSvg").height())/2;
+      var tx = svgXmid - cx ;
+      var ty = svgYmid - cy ;
+
+      console.log("Mid: " + svgXmid + ":" +svgYmid)
+      console.log("cx:" + cx + " cy:" +cy + " gtx:" + gTranslate.x + " gty:" + gTranslate.y )
+
+      console.log("tx: " + tx + " ty: " + ty);
+      simulation.stop();
+
+      var tempTransform = d3.zoomIdentity
+                            .translate(tx,ty)
+
+      graphSvg.call(zoom.transform, tempTransform)
+
+
+
+      var xxx = tempData.nodes.filter(function(d){return d.id===node})[0]
+
+    }
+
+    d3.select("#nodeSearch").on("click", function(){
+      var nodeName =$("#nodeName").val()
+      console.log(nodeName)
+      searchForNode(nodeName)
+    })
+
+
+
+  }
+  initGraph(data)
+  console.log(error)
+  initData()
+
+  ////////////////////
+  ////// Forms //////
+  ////////////////////
+
+  d3.select("#snpInput").on("input", function() {
+    snpCutoff = this.value;
+    initData()
+
+  })
+
+  d3.select("#clusterInput").on("input", function() {
+    clusterCutoff = this.value;
+    initData()
+
+  })
+
+
+
+  function initData(){
+    var tempEdges = data.edges.filter(function(d){
+      return d.value<snpCutoff;
+    })
+
+
+    var timeFilteredNodes = data.nodes.filter(function(d){
+      return d.date < selectedDate
+    }).map(function(d){return d.id})
+
+    var newData = reduceByCluster(tempEdges,data.nodes,timeFilteredNodes)
+    console.log(newData)
+    initGraph(newData)
+    simulation.alpha(1).restart()
+
+
+    console.log(data)
+    function reduceByCluster(datEdges,oldNodes,tfNodes){
+      console.log("NewEdges: ");
+      console.log(datEdges)
+      if (+clusterCutoff<=1){
+        var newEdges = [];
+        var newNodes = [];
+        datEdges.forEach(function(d){
+          if((isInArray(d.source.id,tfNodes)) && (isInArray(d.target.id,tfNodes))){
+              newEdges.push(d);
+          }
+        });
+        oldNodes.forEach(function(d){
+          if((isInArray(d.id,tfNodes))){
+            newNodes.push(d);
+          }
+        });
+        var reducedData = {"nodes": newNodes ,"edges": newEdges}
+        console.log(reducedData)
+        return reducedData;
+      }
+
+      var hash = [];
+      datEdges.forEach(function(d) {
+        if ((isInArray(d.source.id,tfNodes)) && (isInArray(d.target.id,tfNodes))){
+          hash[hash.length] = d.source.id + "," + d.target.id;
+        } else {
+          console.log(d.source.id + " or " + d.target.id + " not present")
+        }
+      });
+
+      console.log(hash)
+
+      while (testHash(hash)==false){
+        hash = reduceHash(hash);
+      }
+
+      console.log("Reduced hash:")
+      console.log(hash)
+
+      var newNodes = [];
+
+      hash.forEach(function(d){
+        var nodes = d.split(",");
+        var clusterLength = nodes.length;
+        if (clusterLength >= clusterCutoff){
+          nodes.forEach(function(o){
+            oldNodes.forEach(function(p){
+              if (o===p.id){ newNodes.push(p)}
+            })
+          })
+        }
+      })
+
+
+      var newEdges = [];
+      var newNodeNames = newNodes.map(function(d){return d.id})
+      datEdges.forEach(function(d){
+        if ((isInArray(d.source.id,newNodeNames)) || (isInArray(d.target.id,newNodeNames))){
+          if((isInArray(d.source.id,tfNodes)) && (isInArray(d.target.id,tfNodes))){
+            newEdges.push(d);
+          }
+        }
+      })
+      var reducedData = {"nodes": newNodes,"edges": newEdges}
+      console.log(reducedData)
+      return reducedData;
+
+      ////////////////////////////////////
+      //// Functions for computations ////
+      ////////////////////////////////////
+
+      function intersect(a, b) {
+          var t;
+          if (b.length > a.length) t = b, b = a, a = t; // indexOf to loop over shorter
+          return a.filter(function (e) {
+              if (b.indexOf(e) !== -1) return true;
+          });
+      }
+
+      function unique(arr){
+      	var n = {},r=[];
+      	for(var i = 0; i < arr.length; i++)
+      	{
+      		if (!n[arr[i]])
+      		{
+      			n[arr[i]] = true;
+      			r.push(arr[i]);
+      		}
+      	}
+      	return r;
+      }
+
+
+      function reduceHash(hash){
+        var newHash = [];
+        var numsAdded = [];
+
+        for (i in hash){
+          var ivals = hash[i].split(",");
+          var testVal = false
+          for (k in ivals){
+            var ival = ivals[k]
+            if(isInArray(ival, numsAdded)==true){
+              testVal = true;
+            }
+          }
+          if (testVal==false){
+            for (k in ivals){
+              numsAdded[numsAdded.length] = ivals[k];
+            }
+            newHash[newHash.length] = hash[i];
+          } else {
+            for (j in newHash){
+              if (i==j){continue}
+              var jvals = newHash[j].split(",");
+              var inter = intersect(ivals,jvals);
+              if (inter.length!=0){
+                newHash[j] = newHash[j] + "," + hash[i];
+              }
+            }
+          }
+        }
+        for (i in newHash){
+          newHash[i] = unique(newHash[i].split(",")).toString(",");
+        }
+        return newHash;
+      }
+
+
+
+      function testHash(hash){
+        var testVal=0;
+        for (i in hash){
+          var ivals = hash[i].split(",");
+          for (j in hash){
+            if (i==j){continue}
+            var jvals = hash[j].split(",");
+            var inter = intersect(ivals,jvals)
+            if (inter.length>0){testVal++}
+          }
+        }
+        if (testVal>0){return false} else {return true}
+      }
+
+    }
+
+
+
+
+  }
+
+
+  ////////////////////
+  ////// Table //////
+  ////////////////////
+
+  function findEdges(node,links){
+
+    var results = links.filter(function(d){
+      if((d.source.id==node) || (d.target.id==node)){
+        return d;
+      }
+    })
+  //  console.log(results)
+    return results;
+  }
+
+
+  function tableCreate(edges) {
+    document.getElementById("sampleTable").innerHTML = "";
+    var sampleTable = document.getElementById('sampleTable');
+    var tbl = document.createElement('table');
+    tbl.style.width = '100%';
+    tbl.style["margin-left"] = '0px';
+    tbl.setAttribute('border', '1');
+    var tbdy = document.createElement('tbody');
+    var tr = document.createElement('tr');
+    var th = document.createElement('th');
+    th.appendChild(document.createTextNode("Source"));
+    tr.appendChild(th);
+    th = document.createElement('th');
+    th.appendChild(document.createTextNode("Target"));
+    tr.appendChild(th);
+    th = document.createElement('th');
+    th.appendChild(document.createTextNode("SNPs"));
+    tr.appendChild(th);
+    tbdy.appendChild(tr);
+
+    if (edges){
+      for (i in edges) {
+          var tr = document.createElement('tr');
+          for (var j = 0; j < 3; j++) {
+              var td = document.createElement('td');
+              if (j==0){
+                td.appendChild(document.createTextNode(edges[i].source.id))
+              } else if (j==1) {
+                td.appendChild(document.createTextNode(edges[i].target.id))
+              } else if (j==2) {
+                td.appendChild(document.createTextNode(edges[i].value))
+              }
+              tr.appendChild(td)
+          }
+
+          tbdy.appendChild(tr);
+      }
+    }
+    tbl.appendChild(tbdy);
+    sampleTable.appendChild(tbl);
+  }
+
+  tableCreate()
+
+
+
+
+
+
+
+  ////////////////////
+  ////// SLIDER //////
+  ////////////////////
+
+
+  var sliderMargin = {left:10,right:10,top:10,bottom:10}
+  var toolsDivWidth =  $("#toolsDiv").width();
+  var sliderWidth = toolsDivWidth - sliderMargin.left - sliderMargin.right;
+  var sliderSVG = d3.select("#sliderDiv").append("svg").attr("height",20).attr("width",toolsDivWidth);
+
+
+  var sliderG = sliderSVG.append("g")
+                        .attr("class","slider")
+                        .attr("transform", "translate(" + sliderMargin.left + "," + sliderMargin.top + ")");
+
+
+  var sortedDates = data.nodes.map(function(d){if (d.date){return d.date}})
+                    .sort(function(a,b){
+                      return a - b;
+                    });
+  var minDate = sortedDates[0]
+  var maxDate = sortedDates[sortedDates.length-1]
+  selectedDate = minDate;
+  var timeString = minDate.getDate() + "-" + minDate.getMonth() + "-" + minDate.getFullYear()
+  $("#timeP").html("Date: " + timeString)
+
+  var timeScale =  d3.scaleTime()
+      .domain([minDate,maxDate])
+      .range([0,sliderWidth])
+      .clamp(true);
+
+  console.log(timeScale(data.nodes[0].date));
+
+
+
+
+  sliderG.append("line")
+      .attr("class", "track")
+      .attr("x1", timeScale.range()[0])
+      .attr("x2", timeScale.range()[1])
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-inset")
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-overlay")
+      .call(d3.drag()
+          .on("start.interrupt", function() { sliderG.interrupt(); })
+          .on("start", function(){
+            simulation.alphaTarget(0.5).restart();
+            moveSlider(timeScale.invert(d3.event.x))
+          })
+          .on("drag", function() {
+            moveSlider(timeScale.invert(d3.event.x));
+          })
+          .on("end", function(){
+            simulation.alphaTarget(0);
+
+          })
+        );
+
+/*
+  sliderG.insert("g", ".track-overlay")
+      .attr("class", "ticks")
+      .attr("transform", "translate(0," + 18 + ")")
+    .selectAll("text")
+    .data(timeScale.ticks(2))
+    .enter().append("text")
+      .attr("x", timeScale)
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d; });
+*/
+
+  var handle = sliderG.insert("circle", ".track-overlay")
+      .attr("class", "handle")
+      .attr("r", 9);
+
+
+
+  function moveSlider(h) {
+    handle.attr("cx", timeScale(h));
+    value=h;
+    console.log(timeScale(h))
+    console.log(h)
+    selectedDate = h
+    var timeString = h.getDate() + "-" + h.getMonth() + "-" + h.getFullYear()
+    $("#timeP").html("Date: " + timeString)
+
+    initData();
+  }
+
+  function isInArray(value, array) {
+    return array.indexOf(value) > -1;
+  }
+
+
+});
+
+function str2obj(str){
+  str = str.replace(/translate\(/, "");
+  str = str.replace(/\) scale\(/,",");
+  str = str.replace(/\)/,"");
+  var tempArr = str.split(",");
+  return {"k":parseFloat(tempArr[2]),"x":parseFloat(tempArr[0]),"y":parseFloat(tempArr[1])}
+}
+
+function obj2str(obj){
+  var tempStr = "translate(" + obj.x + "," + obj.y + ") scale(" + obj.k + ")"
+  return tempStr
+}
+
+
+
+
+
+
+
+d3.select("#downloadGraph").on("click", function(){
+  var html = d3.select(".graphSVG")
+        .attr("version", 1.1)
+        .attr("xmlns", "http://www.w3.org/2000/svg")
+        .node().parentNode.innerHTML;
+
+  console.log(html);
+  var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+  var img = '<img src="'+imgsrc+'">';
+//  d3.select("#svgdataurl").html(img);
+
+
+  div.append("canvas")
+  var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+    var img = '<img src="'+imgsrc+'">';
+    d3.select("#svgdataurl").html(img);
+
+
+    var canvas = document.querySelector("canvas"),
+  context = canvas.getContext("2d");
+
+  var image = new Image;
+  image.src = imgsrc;
+  image.onload = function() {
+    context.drawImage(image, 0, 0);
+
+    var canvasdata = canvas.toDataURL("image/png");
+
+    var pngimg = '<img src="'+canvasdata+'">';
+      d3.select("#pngdataurl").html(pngimg);
+
+    var a = document.createElement("a");
+    a.download = "sample.png";
+    a.href = canvasdata;
+    a.click();
+  };
+
+
+});
+
+
+
+
+
+
+
+
+
+</script>
+
+
+</body>
+
+</html>

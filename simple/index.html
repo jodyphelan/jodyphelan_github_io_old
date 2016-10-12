@@ -1,0 +1,192 @@
+<html>
+<meta charset="utf-8">
+<script src="jsLib/d3-force.v1.min.js"></script>
+<script src="jsLib/d3.v4.min.js"></script>
+<style>
+.edge{
+  stroke: white;
+  stroke-width: 1;
+}
+.graphSVG{
+  background-color: black;
+}
+
+div.container {
+  width: 100%;
+  border: 1px solid gray;
+}
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 180px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+</style>
+
+<body>
+  <div id="graphDiv"></div>
+
+<script>
+var defaultNodeCol = "white",
+    highlightCol = "yellow";
+
+var height = window.innerHeight;
+var graphWidth =  window.innerWidth;
+
+var graphSvg = d3.select("#graphDiv").append("svg").attr("height",height).attr("width",graphWidth).attr("class","graphSvg");
+var zoom = d3.zoom()
+  .scaleExtent([0.1, 4])
+  .on("zoom", zoomed);
+
+graphSvg.call(zoom);
+
+var graphG = graphSvg.append("g").attr("class","graphG");
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+
+function zoomed() {
+  simulation.stop();
+
+  graphG.attr("transform", d3.event.transform);
+}
+
+
+var simulation = d3.forceSimulation()
+              .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+              .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+              .force("y", d3.forceY(height / 2).strength(0.1))
+              .force("charge", d3.forceManyBody().strength(-1000))
+              .force("link", d3.forceLink().id(function(d) { return d.id; }))
+              .alphaTarget(0)
+              .alphaDecay(0.05)
+
+var symbolScale = d3.scaleOrdinal().domain(["circle","cross","diamond","square","star","triangle","wye"]).range(d3.symbols)
+
+
+d3.json("data.json",function(error,data){
+  console.log(data)
+
+  initGraph(data)
+
+  function initGraph(tempData){
+    var tempGraphEdges = graphG.selectAll(".edge").data(tempData.edges, function(d){return (d.source+"-"+d.target)})
+    tempGraphEdges.exit().remove();
+
+    tempGraphEdges.enter()
+                  .insert("line",":first-child")
+                  .attr("class","edge")
+
+    var tempGraphNodes = graphG.selectAll(".node").data(tempData.nodes,function(d){return d.id})
+    tempGraphNodes.exit().remove();
+
+    tempGraphNodes.enter()
+                  .append("path")
+                  .attr("class","node")
+                  .attr("d", d3.symbol()
+                    .type(function(d) { return symbolScale(d.shape); })
+                    .size(function(d) {
+                      if (d.children){ return 2000;}
+                      else {return 500;}
+                    })
+                  )
+                  .style("fill", function(d){
+                    if (d.col){return d.col}
+                    else {return defaultNodeCol}
+                })
+                  .call(
+                        d3.drag()
+                          .on("start",dragstarted)
+                          .on("drag",dragged)
+                          .on("end",dragended)
+                        );
+
+    var graphEdges = graphG.selectAll(".edge")
+    var graphNodes = graphG.selectAll(".node")
+
+
+    graphNodes
+      .on("mouseover",function(d){
+        console.log("x:" + d.x +" y:"+d.y)
+        d3.select(this)
+          .style("fill",highlightCol);
+        div.transition()
+          .duration(200)
+          .style("opacity", .9);
+        var htmlString = "<strong>ID: " + d.id;
+        if (d.children){
+          htmlString += "<br>Identical Nodes: </strong>"
+          d.children.forEach(function(o){
+            htmlString += "<br>" + o.id;
+          })
+        }
+        div.attr("height", 18*htmlString.split("<br>").length)
+        div.html(htmlString)
+
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+      })
+      .on("mouseout",function(d){
+
+        if (d.col){d3.select(this).style("fill",d.col)}
+        else {d3.select(this).style("fill",defaultNodeCol)}
+
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
+      })
+
+
+    simulation.nodes(tempData.nodes)
+              .on("tick",simulationUpdate);
+
+    simulation.force("link")
+              .links(tempData.edges);
+
+
+
+    function dragstarted(d) {
+      simulation.alphaTarget(1).restart();
+
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(d) {
+//      simulation.alphaDecay(0);
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(0).alphaDecay(0.1);
+      d.fx = null;
+      d.fy = null;
+    }
+
+
+
+    function simulationUpdate(){
+      graphNodes
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+
+      graphEdges
+        .attr("x1",function(d){return d.source.x})
+        .attr("x2",function(d){return d.target.x})
+        .attr("y1",function(d){return d.source.y})
+        .attr("y2",function(d){return d.target.y})
+    }
+  }
+})
+
+
+</script>
+</body>
