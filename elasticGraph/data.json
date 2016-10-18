@@ -15,3 +15,7 @@ rawEdges = [
 	{"source":4,"target":5},
 	{"source":4,"target":6}
 ]
+buildings =[
+	{"id":"1 Churchill Place","col":"blue","location":{"latitude":51.5052192,"longitude":-0.01403319}},
+	{"id":"5 N colonnade","col":"blue","location":{"latitude":51.5059743,"longitude":-0.02183400}}
+]

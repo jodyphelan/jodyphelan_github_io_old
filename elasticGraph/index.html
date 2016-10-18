@@ -438,7 +438,7 @@ var simulation = d3.forceSimulation()
   function initMap(){
 
     d3.select("#mapDiv").style("width","100%").style("height","100%")
-    map = L.map('mapDiv').setView([51.478333, -0.053547], 12);
+    map = L.map('mapDiv').setView([51.504736, -0.016952], 14);
     L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
 //    L.tileLayer("http://localhost/osm/{z}/{x}/{y}.png").addTo(map);
 
@@ -458,17 +458,12 @@ var simulation = d3.forceSimulation()
     console.log("TEMPDATA: ")
     console.log(tempData)
 
-    var tempMapEdges = mapG.selectAll(".edge").data(tempData.edges, function(d){return (d.source+"-"+d.target)})
-    tempMapEdges.exit().remove();
+    var tempMapEdges = mapG.selectAll(".edge").data(tempData.edges).enter()
+                          .insert("line",":first-child")
+                          .attr("class","edge")
 
-    tempMapEdges.enter()
-                  .insert("line",":first-child")
-                  .attr("class","edge")
-
-    var tempMapNodes = mapG.selectAll(".node").data(tempData.nodes,function(d){return d.id})
-    tempMapNodes.exit().remove();
-
-    tempMapNodes.enter()
+    var tempMapNodes = mapG.selectAll(".node").data(tempData.nodes)
+                  .enter()
                   .append("path")
                   .attr("class","node")
                   .attr("d", d3.symbol()
@@ -483,6 +478,15 @@ var simulation = d3.forceSimulation()
                     else {return defaultNodeCol}
                   })
                   .style("opacity",0.3)
+
+    var tempBuildings = mapG.selectAll(".building").data(buildings).enter()
+                            .append("svg:image")
+                            .attr("class","building")
+                            .attr("xlink:href","barc.png")
+                            .attr("width",29)
+                            .attr("height",29)
+
+
 
 
     var mapEdges = mapG.selectAll(".edge")
@@ -501,6 +505,14 @@ var simulation = d3.forceSimulation()
           return "translate("+
             map.latLngToLayerPoint([d.doc.location.latitude,d.doc.location.longitude]).x + ","+
             map.latLngToLayerPoint([d.doc.location.latitude,d.doc.location.longitude]).y +")";
+          }
+        )
+
+        tempBuildings.attr("transform",
+          function(d){
+            return "translate("+
+            (map.latLngToLayerPoint([d.location.latitude,d.location.longitude]).x-15) + ","+
+            (map.latLngToLayerPoint([d.location.latitude,d.location.longitude]).y-15) +")";
           }
         )
 
@@ -672,7 +684,7 @@ var simulation = d3.forceSimulation()
 
         mapDrawNodes()
       }
-
+      mapDrawNodes()
 
 
 </script>
