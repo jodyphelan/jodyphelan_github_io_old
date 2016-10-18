@@ -515,7 +515,7 @@ var simulation = d3.forceSimulation()
 
         mapNodes.attr("transform",
         function(d) {
-          console.log(d)
+          console.log(mapNodes)
           return "translate("+
             map.latLngToLayerPoint([d.doc.location.latitude,d.doc.location.longitude]).x + ","+
             map.latLngToLayerPoint([d.doc.location.latitude,d.doc.location.longitude]).y +")";
