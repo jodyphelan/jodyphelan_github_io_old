@@ -88,10 +88,14 @@ div.tooltip {
     <button class="search" id="searchBtn">Search</button>
     <input class="search" id="GPSForm" placeholder="Lattitude,Longitude,distance"><button class="search" id="GPSBtn">Search</button>
     <hr>
+    <label>Select the distance between event and asset (km):</label>
     <input type="number" min="0" max="100" step="0.1" value="0" id="distKM">
     <hr>
-
+    <label>Start tracking hits close to barclays Assets:</label>
     <button id="tracking" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Track</button>
+    <hr>
+    <label>Retain hits of interest over time:</label>
+    <button id="retainHits" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Retain Hits</button>
     <hr>
 
     <p id="timeP">
@@ -99,7 +103,7 @@ div.tooltip {
     </p>
     <div id="sliderDiv"></div>
     <hr>
-    <label for="sel2">Mutiple select list (hold shift to select more than one):</label>
+    <label for="crimeType">Mutiple select list (hold shift to select more than one):</label>
       <select multiple class="form-control" id="crimeType">
       </select>
   </div>
@@ -117,11 +121,21 @@ div.tooltip {
 <script>
 var distKM=0.5
 var tracking=false;
+var retainHits=false;
 
 d3.select("#distKM").on("input", function() {
   distKM = this.value;
 
 
+})
+
+d3.select("#retainHits").on("click", function() {
+  if ($(this).hasClass("active")){
+    $(this).removeClass("active")
+  } else {
+    $(this).addClass("active")
+  }
+  retainHits = !retainHits
 })
 
 d3.select("#tracking").on("click", function() {
@@ -625,8 +639,10 @@ var simulation = d3.forceSimulation()
     }
 
     function drawPolice(){
-      nodes = [];
-      edges = [];
+      if(retainHits==false){
+        nodes = [];
+        edges = [];
+      }
       var shortDate = shortenDate(selectedDate);
       var tempCrimeType = $("#crimeType").val();
       var crimes = police.result.filter(function(d){
