@@ -1,0 +1,17 @@
+rawNodes = [
+	{"id":"1 Churchill Place","col":"blue","location":{"latitude":51.5052192,"longitude":-0.01403319}},
+	{"id":"5 N colonnade","col":"blue","location":{"latitude":51.5059743,"longitude":-0.02183400}},
+	{"id":"COO","col":"green","location":{"latitude":51.474049,"longitude":-0.014205}},
+	{"id":"Security Risk","col":"purple","location":{"latitude":51.5059743,"longitude":-0.02183400}},
+	{"id":"Delivery","col":"yellow","location":{"latitude":51.519251,"longitude":-0.081091}},
+	{"id":"Van 1","col":"green","location":{"latitude":51.506178,"longitude":-0.026693}},
+	{"id":"Van 2","col":"green","location":{"latitude":51.50949,"longitude":-0.048323}}
+]
+rawEdges = [
+	{"source":0,"target":2},
+	{"source":1,"target":3},
+	{"source":4,"target":0},
+	{"source":4,"target":1},
+	{"source":4,"target":5},
+	{"source":4,"target":6}
+]
