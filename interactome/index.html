@@ -165,7 +165,7 @@ d3.json("data.json",function(error,data){
 
             context.beginPath();
             context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
-            context.fillStyle = d.col ? d.col:"white"
+            context.fillStyle = d.drug==1 ? "red":"white"
             context.fill();
         });
 
