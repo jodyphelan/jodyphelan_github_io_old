@@ -484,9 +484,6 @@ console.log(data)
     var newData = reduceByCluster(tempEdges,data.nodes,timeFilteredNodes)
     console.log(newData)
     initGraph(newData)
-    if (mapDrawSelected==false){
-      mapDrawNodes(newData)
-    }
     simulation.alpha(1).restart()
 
 
