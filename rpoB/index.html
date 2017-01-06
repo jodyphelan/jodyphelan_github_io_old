@@ -1,0 +1,101 @@
+<html>
+<meta charset="utf-8">
+<script src="jsLib/d3.v4.min.js"></script>
+<style>
+  #graph{
+    background-color: black
+  }
+  div.container {
+    width: 100%;
+    border: 1px solid gray;
+  }
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+
+</style>
+<body>
+  <div id="graph_div"></div>
+  <script>
+    var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+    d3.json("data.json", function(data){
+      console.log(data)
+      svg_width = 500
+      svg_height = 500
+      track_start = 10
+      track_end = svg_height-10
+      track1y = 50
+      track2y = 450
+      max_x = 759500
+      max_y = 767500
+      var temp_opacity;
+      var temp_stroke;
+      svg = d3.select("#graph_div").append("svg").attr("id","graph").attr("height",svg_height).attr("width",svg_width)
+      min_pos = data.map(function(d){return +d.p1}).reduce(function(a,b){return  a<b ? a : b})
+      max_pos = data.map(function(d){return +d.p1}).reduce(function(a,b){return  a>b ? a : b})
+      pix_scale = d3.scaleLinear().domain([max_x,max_y]).range([track_start,track_end])
+      min_pval = data.map(function(d){return +d.pval}).reduce(function(a,b){return  a<b ? a : b})
+      max_pval = data.map(function(d){return +d.pval}).reduce(function(a,b){return  a>b ? a : b})
+      opacity_scale = d3.scaleLog().domain([1e-10,1e-300]).range([0,1]).clamp(true)
+      assoc_col = function(d){return d=="1" ? "red" : "white"}
+      svg.append("line").attr("x1",track_start).attr("x2",track_end).attr("y1",track1y).attr("y2",track1y).attr("stroke","white")
+      svg.append("line").attr("x1",track_start).attr("x2",track_end).attr("y1",track2y).attr("y2",track2y).attr("stroke","white")
+      svg.append("line").attr("x1",pix_scale(759807)).attr("x2",pix_scale(763325)).attr("y1",20).attr("y2",20).attr("stroke","#2D7D51").attr("stroke-width",10)
+      svg.append("line").attr("x1",pix_scale(763370)).attr("x2",pix_scale(767320)).attr("y1",20).attr("y2",20).attr("stroke","steelblue").attr("stroke-width",10)
+      svg.append("line").attr("x1",pix_scale(759807)).attr("x2",pix_scale(763325)).attr("y1",480).attr("y2",480).attr("stroke","#2D7D51").attr("stroke-width",10)
+      svg.append("line").attr("x1",pix_scale(763370)).attr("x2",pix_scale(767320)).attr("y1",480).attr("y2",480).attr("stroke","steelblue").attr("stroke-width",10)
+      svg.append("text").text("rpoB").attr("x",100).attr("y",40).attr("font-family", "sans-serif").attr("font-size", "15px").attr("fill", "white")
+      svg.append("text").text("rpoC").attr("x",350).attr("y",40).attr("font-family", "sans-serif").attr("font-size", "15px").attr("fill", "white")
+      svg.append("text").text("rpoB").attr("x",100).attr("y",470).attr("font-family", "sans-serif").attr("font-size", "15px").attr("fill", "white")
+      svg.append("text").text("rpoC").attr("x",350).attr("y",470).attr("font-family", "sans-serif").attr("font-size", "15px").attr("fill", "white")
+      links = svg.selectAll(".link")
+        .data(data).enter()
+        .append("line")
+        .attr("x1",function(d){ return pix_scale(d.p1)})
+        .attr("x2",function(d){ return pix_scale(d.p2)})
+        .attr("y1",track1y)
+        .attr("y2",track2y)
+        .style("stroke",function(d){ return assoc_col(d.assoc)})
+        .style("opacity",function(d){ return opacity_scale(d.pval)})
+      links.on("mouseover",function(d){
+        temp_opacity = opacity_scale(d.pval)
+        temp_stroke = assoc_col(d.assoc)
+        d3.select(this).style("stroke","blue").style("opacity",1)
+        console.log(d);
+        rounded_val = 0
+        if (d.pval!=0){
+          temp_dec = JSON.stringify(d.pval).split("e")[0]
+          rounded_val = Math.round(temp_dec)+"e"+JSON.stringify(d.pval).split("e")[1]
+        }
+        var htmlString = "Pos: "+d.p1+"-"+d.p2+"<br>P-val: "+rounded_val+"<br>GWAS: "+d.assoc;
+        div.html(htmlString)
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+        div.transition()
+          .duration(200)
+          .style("opacity", .9);
+
+
+      }).on("mouseout",function(d){
+        d3.select(this).style("stroke",temp_stroke).style("opacity",temp_opacity)
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
+
+      })
+    })
+
+
+
+
+  </script>
+</body>
