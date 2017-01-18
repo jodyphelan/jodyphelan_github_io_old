@@ -1,0 +1,73 @@
+<html>
+<meta charset="utf-8">
+<script src="jsLib/d3-force.v1.min.js"></script>
+<script src="jsLib/d3.v4.min.js"></script>
+<script src="jsLib/leaflet.js"></script>
+<script src="jsLib/jquery.min.js"></script>
+<script src="jsLib/functions.js"></script>
+<script src="jsLib/palette.js"></script>
+
+<link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="css/leaflet.css" rel="stylesheet">
+
+
+
+</style>
+<body>
+
+  <div class="col-md-2" id="toolsDiv">
+    <div style="height: 50%">
+      <div style="max-height: 100%; overflow-y: scroll;">
+        <p>Num SNPs: <input type="number" min="0" max="500" step="1" value="0" id="snpInput"></p>
+        <p>Min Cluster Size: <input type="number" min="1" max="500" step="1" value="1" id="clusterInput"></p>
+        <p><input type="text" class="input-medium" value="" id="nodeName"><button id="nodeSearch" type="button" class="btn btn-primary">Search</button></p>
+
+        <hr>
+
+        <div id="timeP">Time:</div>
+        <div id="sliderDiv"></div>
+
+        <hr>
+
+        <p><button id="jitterButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Jitter Coordinates</button></p>
+        <p><button id="drawSelectedButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Map all</button></p>
+        <p><a id="downloadAnchorElem" style="display:none"></a><button id="downloadButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Download</button></p>
+
+        <hr>
+
+        <label for="attr_select">Select attribute to colour by:</label>
+        <select class="form-control" id="attr_select"><option></option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-7" id="graphDiv"></div>
+  <div class="col-md-3", id="map_table_div",style="overflow: hidden">
+    <p id="mapDiv"></p>
+    <p id="sampleTable", style="max-height: 100px; overflow-y: scroll"></p>
+  </div>
+  
+<script src="jsLib/variables.js"></script>
+
+
+<script>
+
+
+    d3.select("#sampleTable").style("max-height",height/2)
+
+
+    var zoom = d3.zoom()
+      .scaleExtent([0.1, 4])
+      .on("zoom", zoomed);
+
+    graphSvg.call(zoom);
+
+    var graphG = graphSvg.append("g").attr("class","graphG");
+
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+
+
+</script>
