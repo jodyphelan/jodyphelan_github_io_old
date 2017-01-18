@@ -133,6 +133,13 @@
 
         <label for="attr_select">Select attribute to colour by:</label>
         <select class="form-control" id="attr_select"><option></option></select>
+
+        <hr>
+        <label for="analysis_type">Select attribute to colour by:</label>
+        <select class="form-control" id="analysis_type">
+          <option>Table</option>
+          <option>Graph</option>
+        </select>
       </div>
     </div>
     <div style="height: 30%">
@@ -143,11 +150,12 @@
   <div class="col-md-7" id="graphDiv"></div>
   <div class="col-md-3", id="map_table_div",style="overflow: hidden">
     <p id="mapDiv"></p>
-    <p id="sampleTable", style="max-height: 100px; overflow-y: scroll"></p>
+    <p id="sampleTable" style="max-height: 100px; overflow-y: scroll"></p>
   </div>
 
 <script>
 $('input:checkbox').removeAttr('checked');
+var analysis_type = "Table"
 var textOn = false
 var selected_attrib = "nothing"
 var mapDrawSelected=false;
@@ -578,8 +586,17 @@ d3.json("data.json",function(error,data){
   })
 
 
+  $("#attr_select").change(function(){
+    console.log(this.value)
+    selected_attrib = this.value
+    $("#legend_div").html(generate_legend(colour_obj,this.value))
+    initData()
+  })
 
-
+  $("#analysis_type").change(function(){
+    analysis_type = this.value
+    initData()
+  })
 //////////////////////////
 
   all_node_idx = {}
@@ -589,51 +606,17 @@ d3.json("data.json",function(error,data){
 
   function initData(){
 
-    temp_nodes = data.nodes.filter(function(d){return d.date<=selectedDate})
-    temp_node_ids = temp_nodes.map(function(d){return d.id})
-    temp_edges = data.edges[snpCutoff].filter(function(d){return isInArray(d.source.id,temp_node_ids) && isInArray(d.target.id,temp_node_ids)})
 
-    if (clusterCutoff>1){
-      temp_nodes=[]
-      temp_node_ids=[]
-
-      clusters = []
-      for (j in temp_edges){
-        e = temp_edges[j]
-        test = 0
-        for (i in clusters){
-          if (isInArray(e.source.id,clusters[i]) || isInArray(e.target.id,clusters[i])){
-            if (!isInArray(e.source.id,clusters[i])){
-              clusters[i].push(e.source.id)
-            }
-            if (!isInArray(e.source.id,clusters[i])){
-              clusters[i].push(e.target.id)
-            }
-            test=1
-            break
-          }
-        }
-        if (test==0){
-          clusters.push([e.source.id,e.target.id])
-        }
-      }
-      clusters = clusters.filter(function(d){return d.length>=clusterCutoff})
-        temp_node_ids = []
-        temp_nodes = []
-      for (i in clusters){
-        for (j in clusters[i]){
-          temp_node_ids.push(clusters[i][j])
-          temp_nodes.push(data.nodes[all_node_idx[clusters[i][j]]])
-        }
-      }
-      temp_edges = temp_edges.filter(function(d){
-        return isInArray(d.source.id,temp_node_ids) && isInArray(d.target.id,temp_node_ids)
-      })
-    }
-    newData = {"nodes":temp_nodes,"edges":temp_edges}
+    newData = subsetData(data,selectedDate,clusterCutoff,snpCutoff)
     initGraph(newData)
     if (mapDrawSelected==false){
       mapDrawNodes(newData)
+    }
+    switch(analysis_type){
+      case "Graph":
+          clusters = counter(graph2clusters(newData.nodes,newData.edges).map(function(d){return d.length}))
+          y = y =$("#sampleTable")
+          clusterCount2hist(clusters,"sampleTable",y.parent().height()/2 ,y.parent().width())
     }
     simulation.alpha(1).restart()
 
@@ -665,12 +648,7 @@ d3.json("data.json",function(error,data){
     $("#attr_select").append("<option>"+d+"</option>")
   })
 
-  $("#attr_select").change(function(){
-    console.log(this.value)
-    selected_attrib = this.value
-    $("#legend_div").html(generate_legend(colour_obj,this.value))
-    initData()
-  })
+
 
 //  initGraph({"nodes":data.nodes,"edges":data.edges["0"]})
   initData()

@@ -95,3 +95,129 @@ function tableCreate(div_name,node_name,tempData) {
   tbl.appendChild(tbdy);
   sampleTable.appendChild(tbl);
 }
+
+
+
+
+
+function graph2clusters(nodes,edges){
+  clusters = []
+  node_ids = {}
+  for (j in edges){
+    e = edges[j]
+    node_ids[e.source.id] = 1
+    node_ids[e.target.id] = 1
+    test = 0
+    for (i in clusters){
+      if (isInArray(e.source.id,clusters[i]) || isInArray(e.target.id,clusters[i])){
+        if (!isInArray(e.source.id,clusters[i])){
+          clusters[i].push(e.source.id)
+        }
+        if (!isInArray(e.source.id,clusters[i])){
+          clusters[i].push(e.target.id)
+        }
+        test=1
+        break
+      }
+    }
+    if (test==0){
+
+      clusters.push([e.source.id,e.target.id])
+    }
+  }
+  node_ids = uniq(Object.keys(node_ids))
+  nodes.forEach(function(d){
+    if (!isInArray(d.id,node_ids)){
+      clusters.push([d.id])
+    }
+  })
+  return clusters
+}
+
+
+function counter(arr){
+  obj = {}
+  set = []
+  arr.forEach(function(d){
+    if (!isInArray(d,set)){
+      obj[d] = 1
+      set.push(d)
+    } else{
+      obj[d]+=1
+    }
+  })
+  return obj
+}
+
+
+function clusterCount2hist(clusters,div,height,width){
+  div = "#"+div
+  d3.select(div).selectAll("*").remove()
+  max_cluster_size = +d3.max(Object.keys(clusters))
+  min_cluster_size = +d3.min(Object.keys(clusters))
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = width - margin.left - margin.right,
+      height = height - margin.top - margin.bottom;
+
+    // set the ranges
+  var x = d3.scaleLinear().range([0, width]).domain([min_cluster_size,max_cluster_size+1])
+  var y = d3.scaleLinear().range([height, 0]).domain([0,d3.max(Object.values(clusters))]);
+
+  var svg = d3.select(div).append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+  bars = []
+  for (i in clusters){
+    bars.push({"x":i,"y":clusters[i]})
+  }
+
+  svg.selectAll(".bar")
+        .data(bars)
+      .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.x); })
+        .attr("width", max_cluster_size==min_cluster_size ? width/2 : width*(1/(max_cluster_size+1-min_cluster_size)))
+        .attr("y", function(d) { return y(d.y); })
+        .attr("height", function(d) { return height - y(d.y); });
+
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+}
+
+
+function subsetData(data,selectedDate,clusterCutoff,snpCutoff){
+  temp_nodes = data.nodes.filter(function(d){return d.date<=selectedDate})
+  temp_node_ids = temp_nodes.map(function(d){return d.id})
+  temp_edges = data.edges[snpCutoff].filter(function(d){return isInArray(d.source.id,temp_node_ids) && isInArray(d.target.id,temp_node_ids)})
+
+  if (clusterCutoff>1){
+    temp_nodes=[]
+    temp_node_ids=[]
+
+    clusters = graph2clusters({"nodes":temp_nodes,"edges":temp_edges})
+    clusters = clusters.filter(function(d){return d.length>=clusterCutoff})
+      temp_node_ids = []
+      temp_nodes = []
+    for (i in clusters){
+      for (j in clusters[i]){
+        temp_node_ids.push(clusters[i][j])
+        temp_nodes.push(data.nodes[all_node_idx[clusters[i][j]]])
+      }
+    }
+    temp_edges = temp_edges.filter(function(d){
+      return isInArray(d.source.id,temp_node_ids) && isInArray(d.target.id,temp_node_ids)
+    })
+  }
+  newData = {"nodes":temp_nodes,"edges":temp_edges}
+  return newData
+
+}
