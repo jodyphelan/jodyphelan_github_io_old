@@ -53,6 +53,7 @@ function edges2full(tempEdges){
 }
 
 function tableCreate(div_name,node_name,tempData) {
+  div_name = div_name.substr(1)
   edges = findEdges(node_name,tempData.edges)
   document.getElementById(div_name).innerHTML = "";
   var sampleTable = document.getElementById(div_name);
@@ -151,15 +152,16 @@ function counter(arr){
 
 
 function clusterCount2hist(clusters,div,height,width){
-  div = "#"+div
+
   d3.select(div).selectAll("*").remove()
+
   max_cluster_size = +d3.max(Object.keys(clusters))
   min_cluster_size = +d3.min(Object.keys(clusters))
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = width - margin.left - margin.right,
       height = height - margin.top - margin.bottom;
-
     // set the ranges
+    console.log(width , height)
   var x = d3.scaleLinear().range([0, width]).domain([min_cluster_size,max_cluster_size+1])
   var y = d3.scaleLinear().range([height, 0]).domain([0,d3.max(Object.values(clusters))]);
 
@@ -169,6 +171,8 @@ function clusterCount2hist(clusters,div,height,width){
   .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
+
+
 
   bars = []
   for (i in clusters){
@@ -190,7 +194,6 @@ function clusterCount2hist(clusters,div,height,width){
 
   svg.append("g")
     .call(d3.axisLeft(y));
-
 }
 
 

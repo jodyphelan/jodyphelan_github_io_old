@@ -3,66 +3,190 @@
 <script src="jsLib/d3-force.v1.min.js"></script>
 <script src="jsLib/d3.v4.min.js"></script>
 <script src="jsLib/leaflet.js"></script>
+<link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="css/leaflet.css" rel="stylesheet">
 <script src="jsLib/jquery.min.js"></script>
 <script src="jsLib/functions.js"></script>
 <script src="jsLib/palette.js"></script>
 
-<link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="css/leaflet.css" rel="stylesheet">
+<style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 10px;
+
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+
+  #area5{
+    margin-bottom: 0;
+  }
+
+  #area4{
+    margin-bottom: 0;
+  }
+  .edge{
+    stroke: white;
+    stroke-width: 1;
+  }
+  .graphSVG{
+    background-color: black;
+  }
+  .node{
+    fill: white;
+    stroke: white;
+  }
+
+  .node-active{
+    fill: yellow;
+    stroke: white;
+  }
+
+  div.container {
+    width: 100%;
+    border: 1px solid gray;
+  }
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+
+
+  .ticks {
+    font: 10px sans-serif;
+  }
+
+  .track,
+  .track-inset,
+  .track-overlay {
+    stroke-linecap: round;
+  }
+
+  .track {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 10px;
+  }
+
+  .track-inset {
+    stroke: #ddd;
+    stroke-width: 8px;
+  }
+
+  .track-overlay {
+    pointer-events: stroke;
+    stroke-width: 50px;
+    cursor: crosshair;
+  }
+
+  .handle {
+    fill: #fff;
+    stroke: #000;
+    stroke-opacity: 0.5;
+    stroke-width: 1.25px;
+  }
+
 
 
 
 </style>
 <body>
-
-  <div class="col-md-2" id="toolsDiv">
-    <div style="height: 50%">
+  <div class="col-md-2" id="col1" style="padding-right: 0px" >
+    <div id="area1" style="height: 70%">
       <div style="max-height: 100%; overflow-y: scroll;">
         <p>Num SNPs: <input type="number" min="0" max="500" step="1" value="0" id="snpInput"></p>
         <p>Min Cluster Size: <input type="number" min="1" max="500" step="1" value="1" id="clusterInput"></p>
         <p><input type="text" class="input-medium" value="" id="nodeName"><button id="nodeSearch" type="button" class="btn btn-primary">Search</button></p>
-
+        <div class="checkbox"><label><input id="displayNameCheckbox" type="checkbox" value=""><strong>Display names</strong></label></div>
         <hr>
 
         <div id="timeP">Time:</div>
         <div id="sliderDiv"></div>
 
         <hr>
+        <div class="checkbox"><label><input id="jitterCheckbox" type="checkbox" value=""><strong>Jitter GPS</strong></label></div>
+        <div class="checkbox"><label><input id="mapSelectedCheckbox" type="checkbox" value=""><strong>Map selected</strong></label></div>
 
-        <p><button id="jitterButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Jitter Coordinates</button></p>
-        <p><button id="drawSelectedButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Map all</button></p>
-        <p><a id="downloadAnchorElem" style="display:none"></a><button id="downloadButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Download</button></p>
+        <hr>
+
+        <p><a id="downloadAnchorElem" style="display:none"></a><button id="downloadButton" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Download graph JSON</button></p>
 
         <hr>
 
         <label for="attr_select">Select attribute to colour by:</label>
         <select class="form-control" id="attr_select"><option></option></select>
+
+        <hr>
+        <label for="analysis_type">Select analysis type:</label>
+        <select class="form-control" id="analysis_type"><option selected></option></select>
       </div>
+    </div>
+    <div style="height: 30%">
+      <div id="legend_div" style="max-height: 100%; overflow-y: scroll;"><hr><strong>Legend:</strong><br></div>
     </div>
   </div>
 
-  <div class="col-md-7" id="graphDiv"></div>
-  <div class="col-md-3", id="map_table_div",style="overflow: hidden">
-    <p id="mapDiv"></p>
-    <p id="sampleTable", style="max-height: 100px; overflow-y: scroll"></p>
+  <div class="col-md-7" id="col2">
+    <div id="area3" style="height: 100%; width: 100%"></div>
   </div>
-  
-<script src="jsLib/variables.js"></script>
-
-
+  <div class="col-md-3" id="col3" style="overflow: hidden">
+    <div id="area4" style="height: 50%;"></div>
+    <div id="area5" style="height: 50%; max-height: 50%; overflow-y: scroll"></div>
+  </div>
 <script>
+$('input:checkbox').removeAttr('checked');
+var analysis_type = "Table"
+var textOn = false
+var selected_attrib = "nothing"
+var mapDrawSelected=false;
+var jitterCoordsSwitch = false;
+var snpCutoff = 0;
+var clusterCutoff = 1;
+var temp_col
+var defaultNodeCol = "white",
+    highlightCol = "yellow";
+
+//d3.select("#area5").style("max-height",height/2)
+graphDiv = "#area3"
+var graphWidth =  $(graphDiv).width();
+var height = $(graphDiv).height();
+
+var value = 0;
+var selectedDate;
+var radius = 5
 
 
-    d3.select("#sampleTable").style("max-height",height/2)
+
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 
-    var zoom = d3.zoom()
-      .scaleExtent([0.1, 4])
-      .on("zoom", zoomed);
+    var graphCanvas = d3.select(graphDiv).append('canvas')
+    .attr('width', graphWidth + 'px')
+    .attr('height', height + 'px')
+    .style('background-color', "black")
+    .node();
 
-    graphSvg.call(zoom);
-
-    var graphG = graphSvg.append("g").attr("class","graphG");
+    var context = graphCanvas.getContext('2d');
 
     var div = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -70,4 +194,472 @@
 
 
 
+
+
+
+d3.json("data.json",function(error,data){
+
+
+  data.nodes.forEach(function(d){
+      d.date = new Date(d.date)
+  })
+  console.log(data)
+  ////////////////////
+  /////// MAP ////////
+  ////////////////////
+
+
+  function initMap(){
+    mapDiv = "area4"
+
+    map = L.map(mapDiv).setView([0,0], 4);
+    L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/{z}/{x}/{y}.png").addTo(map);
+
+    map._initPathRoot()
+    mapSvg = d3.select("#"+mapDiv).select("svg"),
+    mapG = mapSvg.append("g");
+
+  }
+
+  initMap();
+
+  function mapDrawNodes(tempData){
+    mapG.selectAll("*").remove()
+    var mapEdges =  mapG.selectAll(".edge").data(tempData.edges).enter()
+                        .append("line")
+                        .attr("class","edge")
+
+    var mapNodes =  mapG.selectAll(".node").data(tempData.nodes).enter()
+                        .append("circle")
+                        .attr("class","node")
+                        .attr("r", 10)
+                        .style("fill", function(d){
+                          return d.attributes[selected_attrib] ? colour_obj[selected_attrib][d.attributes[selected_attrib]]:"white"
+                        })
+                        .style("opacity",0.3)
+
+
+    map.on("viewreset",updateMap);
+
+
+    updateMap();
+
+    function updateMap() {
+
+
+
+      function jitter(){
+        jit = {};
+        jit.lat = ((Math.random() * 2) - 1)*(map.layerPointToLatLng([0,0]).lat - map.layerPointToLatLng([50,50]).lat);
+        jit.lng = ((Math.random() * 2) - 1)*(map.layerPointToLatLng([0,0]).lng - map.layerPointToLatLng([50,50]).lng);
+        return jit;
+      }
+
+      if (jitterCoordsSwitch==true){
+        mapNodes.attr("transform",
+        function(d) {
+
+          if ((!d.jitterCoords) || (map._zoom != d.zoomLevel)){
+            var jit = jitter()
+            d.jitterCoords = [d.gps[0]+jit.lat,d.gps[1]+jit.lng];
+            d.zoomLevel = map._zoom;
+          }
+          return "translate("+
+            map.latLngToLayerPoint(d.jitterCoords).x + ","+
+            map.latLngToLayerPoint(d.jitterCoords).y +")";
+          }
+        )
+        mapEdges
+          .attr("x1",function(d){return map.latLngToLayerPoint(d.source.jitterCoords).x})
+          .attr("x2",function(d){return map.latLngToLayerPoint(d.target.jitterCoords).x})
+          .attr("y1",function(d){return map.latLngToLayerPoint(d.source.jitterCoords).y})
+          .attr("y2",function(d){return map.latLngToLayerPoint(d.target.jitterCoords).y});
+
+
+      } else {
+
+        mapNodes.attr("transform",
+        function(d) {
+
+          return "translate("+
+            map.latLngToLayerPoint(d.gps).x + ","+
+            map.latLngToLayerPoint(d.gps).y +")";
+          }
+        )
+
+        mapEdges
+          .attr("x1",function(d){return map.latLngToLayerPoint(d.source.gps).x})
+          .attr("x2",function(d){return map.latLngToLayerPoint(d.target.gps).x})
+          .attr("y1",function(d){return map.latLngToLayerPoint(d.source.gps).y})
+          .attr("y2",function(d){return map.latLngToLayerPoint(d.target.gps).y});
+      }
+
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+  var simulation = d3.forceSimulation()
+                .force("center", d3.forceCenter(graphWidth / 2, height / 2))
+                .force("x", d3.forceX(graphWidth / 2).strength(0.1))
+                .force("y", d3.forceY(height / 2).strength(0.1))
+                .force("charge", d3.forceManyBody().strength(-50))
+                .force("link", d3.forceLink().strength(1).id(function(d) { return d.id; }))
+                .alphaTarget(0)
+                .alphaDecay(0.05)
+
+  var transform = d3.zoomIdentity;
+
+
+
+
+
+
+
+
+
+
+
+  function initGraph(tempData){
+
+    d3.select("#downloadButton").on("click",function(){
+      console.log("Downloading")
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tempData));
+      var dlAnchorElem = document.getElementById('downloadAnchorElem');
+      dlAnchorElem.setAttribute("href",     dataStr     );
+      dlAnchorElem.setAttribute("download", "graph.json");
+      dlAnchorElem.click();
+    })
+
+    function zoomed() {
+      transform = d3.event.transform;
+        console.log(transform)
+      simulationUpdate();
+    }
+
+    d3.select(graphCanvas)
+        .call(d3.drag().subject(dragsubject).on("start", dragstarted).on("drag", dragged).on("end",dragended))
+        .call(d3.zoom().scaleExtent([1 / 10, 8]).on("zoom", zoomed))
+
+
+
+  function dragsubject() {
+    var i,
+    x = transform.invertX(d3.event.x),
+    y = transform.invertY(d3.event.y),
+    dx,
+    dy;
+    for (i = tempData.nodes.length - 1; i >= 0; --i) {
+      node = tempData.nodes[i];
+      dx = x - node.x;
+      dy = y - node.y;
+//      console.log("a2+b2=c2")
+//      console.log(dx*dx+"+"+dy*dy+"="+radius*radius)
+      if (dx * dx + dy * dy < radius * radius*2) {
+        node.x =  transform.applyX(node.x);
+        node.y = transform.applyY(node.y);
+        tableCreate("area5",node.id,tempData)
+        if (mapDrawSelected==true){
+          if (findEdges(node.id,tempData.edges).length==0){
+            mapDrawNodes({"nodes":[node],"edges":[]})
+          } else {
+            mapDrawNodes(edges2full(findEdges(node.id,tempData.edges)))
+          }
+        }
+        console.log(node)
+        return node;
+      }
+    }
+  }
+
+
+  function dragstarted() {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d3.event.subject.fx = transform.invertX(d3.event.x);
+    d3.event.subject.fy = transform.invertY(d3.event.y);
+  }
+
+  function dragged() {
+    d3.event.subject.fx = transform.invertX(d3.event.x);
+    d3.event.subject.fy = transform.invertY(d3.event.y);
+
+  }
+
+  function dragended() {
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d3.event.subject.fx = null;
+    d3.event.subject.fy = null;
+  }
+
+    simulation.nodes(tempData.nodes)
+              .on("tick",simulationUpdate);
+
+    simulation.force("link")
+              .links(tempData.edges);
+
+
+
+    function simulationUpdate(){
+      context.save();
+
+      context.clearRect(0, 0, graphWidth, height);
+      context.translate(transform.x, transform.y);
+      context.scale(transform.k, transform.k);
+
+      tempData.edges.forEach(function(d) {
+            context.beginPath();
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+            context.strokeStyle = "white"
+            context.stroke();
+
+        });
+
+        // Draw the nodes
+        tempData.nodes.forEach(function(d, i) {
+
+            context.beginPath();
+            context.arc(d.x, d.y, radius, 0, 2 * Math.PI, true);
+            context.fillStyle = d.attributes[selected_attrib] ? colour_obj[selected_attrib][d.attributes[selected_attrib]]:"white"
+            context.fill();
+
+        });
+
+        tempData.nodes.forEach(function(d, i) {
+          if (textOn==true){
+            context.fillStyle = "white"
+            context.fillText(d.id, d.x+5, d.y-5)
+          }
+        })
+
+        context.restore();
+//        transform = d3.zoomIdentity;
+    }
+
+    d3.select("#nodeSearch").on("click", function(){
+      var nodeName =$("#nodeName").val()
+      searchForNode(nodeName)
+    })
+
+    function searchForNode(node){
+      if(isInArray(node,tempData.nodes.map(function(d){return d.id}))===false){alert("ID not found");return;}
+
+      var cx;
+      var cy;
+      tempData.nodes.forEach(function(d){
+        if (d.id===node){
+          cx = d.x;
+          cy = d.y;
+        }
+      });
+      dx = graphWidth/2 - transform.k*cx
+      dy = height/2 - transform.k*cy
+      transform.x = dx
+      transform.y = dy
+      simulationUpdate()
+
+
+    }
+
+  }
+
+
+
+
+
+
+  var sliderMargin = {left:10,right:10,top:10,bottom:10}
+  var toolsDivWidth =  $("#area1").width()-15;
+  var sliderWidth = toolsDivWidth - sliderMargin.left - sliderMargin.right;
+  var sliderSVG = d3.select("#sliderDiv").append("svg").attr("height",20).attr("width",toolsDivWidth);
+
+
+  var sliderG = sliderSVG.append("g")
+                        .attr("class","slider")
+                        .attr("transform", "translate(" + sliderMargin.left + "," + sliderMargin.top + ")");
+
+
+  var sortedDates = data.nodes.map(function(d){if (d.date){return d.date}})
+                    .sort(function(a,b){
+                      return a - b;
+                    });
+  var minDate = sortedDates[0]
+  var maxDate = sortedDates[sortedDates.length-1]
+  selectedDate = minDate;
+  var timeString = minDate.getDate() + "-" + minDate.getMonth() + "-" + minDate.getFullYear()
+  $("#timeP").html("Date: " + timeString)
+
+  var timeScale =  d3.scaleTime()
+      .domain([minDate,maxDate])
+      .range([0,sliderWidth])
+      .clamp(true);
+
+
+
+
+  sliderG.append("line")
+      .attr("class", "track")
+      .attr("x1", timeScale.range()[0])
+      .attr("x2", timeScale.range()[1])
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-inset")
+    .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+      .attr("class", "track-overlay")
+      .call(d3.drag()
+          .on("start.interrupt", function() { sliderG.interrupt(); })
+          .on("start", function(){
+            simulation.alphaTarget(0.5).restart();
+            moveSlider(timeScale.invert(d3.event.x))
+          })
+          .on("drag", function() {
+            moveSlider(timeScale.invert(d3.event.x));
+          })
+          .on("end", function(){
+            simulation.alphaTarget(0);
+
+          })
+        );
+
+
+
+  var handle = sliderG.insert("circle", ".track-overlay")
+      .attr("class", "handle")
+      .attr("r", 9);
+
+
+
+  function moveSlider(h) {
+    handle.attr("cx", timeScale(h));
+    value=h;
+    if (selectedDate!=h){
+      selectedDate = h
+      var timeString = h.getDate() + "-" + h.getMonth() + "-" + h.getFullYear()
+      $("#timeP").html("Date: " + timeString)
+
+      initData();
+    }
+  }
+
+
+
+
+
+
+  ////////////////////
+  ////// Forms //////
+  ////////////////////
+
+  d3.select("#snpInput").on("input", function() {
+    snpCutoff = this.value;
+    initData()
+
+  })
+
+  d3.select("#clusterInput").on("input", function() {
+    clusterCutoff = this.value;
+    initData()
+
+  })
+
+
+  $("#mapSelectedCheckbox").change(function(){
+    mapG.selectAll("*").remove()
+    mapDrawSelected = !mapDrawSelected
+    initData()
+  })
+
+  $("#jitterCheckbox").change(function(){
+    jitterCoordsSwitch = ! jitterCoordsSwitch
+    initData()
+  })
+
+  $("#displayNameCheckbox").change(function(){
+    textOn= !textOn
+    initData()
+  })
+
+  xx = ["Table","Graph"]
+  xx.forEach(function(d){
+    console.log(d)
+    $("#analysis_type").append("<option>"+d+"</option>")
+  })
+
+  $("#attr_select").change(function(){
+    console.log(this.value)
+    selected_attrib = this.value
+    $("#legend_div").html(generate_legend(colour_obj,this.value))
+    initData()
+  })
+
+  $("#analysis_type").change(function(){
+    analysis_type = this.value
+    initData()
+  })
+//////////////////////////
+
+  all_node_idx = {}
+  for (i in data.nodes){
+    all_node_idx[data.nodes[i].id] = i
+  }
+
+  function initData(){
+
+
+    newData = subsetData(data,selectedDate,clusterCutoff,snpCutoff)
+    initGraph(newData)
+    if (mapDrawSelected==false){
+      mapDrawNodes(newData)
+    }
+    switch(analysis_type){
+      case "Graph":
+          clusters = counter(graph2clusters(newData.nodes,newData.edges).map(function(d){return d.length}))
+          y = y =$("#area5")
+          clusterCount2hist(clusters,"area5",y.parent().height()/2 ,y.parent().width())
+    }
+    simulation.alpha(1).restart()
+
+  }
+
+
+
+//// make the source and target point directly to the node object
+  node_arr = data.nodes.map(function(d){return d.id})
+  for(d in data.edges){
+    data.edges[d].forEach(function(d){
+      d.source = data.nodes[node_arr.indexOf(d.source)]
+      d.target = data.nodes[node_arr.indexOf(d.target)]
+    })
+  }
+
+
+
+
+  ////////////// SET UP COLOURS //////////////////
+
+  colour_obj = {}
+  for (attr in data.nodes[0].attributes){
+    colour_obj[attr] = getCols(uniq(data.nodes.map(function(d){return d.attributes[attr]})))
+  }
+  console.log(colour_obj)
+
+  Object.keys(colour_obj).forEach(function(d){
+    $("#attr_select").append("<option>"+d+"</option>")
+  })
+
+
+
+//  initGraph({"nodes":data.nodes,"edges":data.edges["0"]})
+  initData()
+
+
+
+})
 </script>
+</html>
