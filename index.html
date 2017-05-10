@@ -1,157 +1,241 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset='utf-8'>
-  <link rel="stylesheet" href="bootstrap.min.css">
-  <script src="data.json"></script>
-  <script src="d3.v3.min.js"></script>
-  <script src="clusterSize.js"></script>
-  <script src="useful.js"></script>
-  <script src="jquery-3.1.0.min.js"></script>
-  <link rel="stylesheet" href="leaflet.css">
-  <link rel="stylesheet" href="styles.css">
-  <script src="leaflet.js"></script>
-  <style>
-    .row{
-      margin-left: 0;
-      margin-right: 0;
-    }
-    #graphSvg{
-      background-color: black;
-    }
-  </style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>jodyphelan - Home</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/modern-business.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
 </head>
+
 <body>
 
-<div class="row" >
-  <div class="col-md-2" id="menu">
-    <p>
-      Alert level (0-1):
-      <input type="number" min="0" max="1" step="0.1" value="0" id="nValue">
-    </p>
-    <p>
-      Min Cluster Size:
-      <input type="number" min="0" max="500" step="1" value="0" id="cValue">
-    </p>
-    <p>
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">jodyphelan</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="active">
+                        <a href="index.html">Home</a>
+                    </li>
+                    <li>
+                        <a href="contact.html">Contact</a>
+                    </li>
+                    <li>
+                        <a href="index.html">Publications</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="aurum.html"><i>M.aurum</i></a>
+                            </li>
+                            <li>
+                                <a href="peppe.html">PE/PPE genes</a>
+                            </li>
+                            <li>
+                                <a href="variability.html">Variability</a>
+                            </li>
+                            <li>
+                                <a href="tdr.html">TDR GWAS</a>
+                            </li>
+                            <li>
+                                <a href="tbprofiler.html">TBProfiler</a>
+                            </li>
+                            <li>
+                                <a href="github.html">Github</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
 
-      <input type="text" class="input-medium" value="" id="nodeName">
-      <button id="nodeSearch" type="button" class="btn btn-primary">Simulate</button>
+    <!-- Page Content -->
+    <div class="container">
 
-    </p>
-    <hr>
-    <p id="node">
-      Sample:
-    </p>
-    <hr>
-    <button id="colourNodeBtn" disabled="true" type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-      Colour Clusters
-    </button>
+        <!-- Page Heading/Breadcrumbs -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Home
+                    <small>Subheading</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li class="active">Home</li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="publications.html">Publications</a></li>
+                </ol>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <!-- Intro Content -->
+        <div class="row">
+            <div class="col-md-6">
+              <!--
+              <iframe src="http://jodyphelan.github.io/interactome" width="500" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+              <p><small>A representation of protein interactions</small></p>
+-->
+                <img class="img-responsive" src="img/tb-collab.png" alt="">
+
+            </div>
+            <div class="col-md-6">
+                <h2>About</h2>
+                <p>Just finishing up my PhD student at the London School of Hygiene and Tropical Medicine.</p>
+                <p>I am looking at the genomic diversity of <i>Mycobacterium tuberculosis</i> using next generation sequencing under the supervision of Prof. Taane Clark</p>
+                <p>The scope of my research covers the analysis of large scale sequencing projects by implementing bioinformatic programs into pipelines.</p>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <!-- Team Members -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">Projects</h2>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/aurum.png" alt="">
+                    <div class="caption">
+                        <h3><i>Mycobacterium aurum</i><br>
+                            <small>The draft genome</small>
+                        </h3>
+                        <p>Sequencing, assembling and annotating the draft genome of <i>Mycobacterium aurum</i>, a surrogate organism for high throughput screening of anti-mycobacterial agents.</p>
+                        <ul class="list-inline">
+                            <li><a href="aurum.html"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/tb-collab.png" alt="">
+                    <div class="caption">
+                        <h3>PE/PPE genes<br>
+                            <small>Characterising this diverse gene family</small>
+                        </h3>
+                        <p>Assembling high coverage isolates to profile the variation in the highly repetitive PE and PPE genes.<br><br><br></p>
+                        <ul class="list-inline">
+                            <li><a href="#"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/tb-collab.png" alt="">
+                    <div class="caption">
+                        <h3>Variability of sequencing<br>
+                            <small>Sequencing for <i>in-silico</i> DST</small>
+                        </h3>
+                        <p>We analysed the variability and reproducibility of two next generation sequencing platforms with an application to detect drug resistance.<br><br></p>
+                        <ul class="list-inline">
+                            <li><a href="#"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/tb-collab.png" alt="">
+                    <div class="caption">
+                        <h3>Bacterial GWAS<br>
+                            <small>Application to drug resistance</small>
+                        </h3>
+                        <p>We describe a GWAS approach to detect variants associated with drug resistance in isolates from the TDR strain bank.</p>
+                        <ul class="list-inline">
+                            <li><a href="#"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/tb-collab.png" alt="">
+                    <div class="caption">
+                        <h3>TBProfiler<br>
+                            <small>A command line version</small>
+                        </h3>
+                        <p>Currently in the process of implementing a command line version of the TBProfiler developed by <i>Coll et al.</i><br><br></p>
+                        <ul class="list-inline">
+                            <li><a href="#"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                    <img class="img-responsive" src="img/tb-collab.png" alt="">
+                    <div class="caption">
+                        <h3>Github<br>
+                            <small>A collection of projects</small>
+                        </h3>
+                        <p>A collection of bits of code which I have developed and use in day to day analysis.<br><br></p>
+                        <ul class="list-inline">
+                            <li><a href="#"><i class="fa fa-2x fa-folder-open"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
 
 
-    <hr>
-  </div>
-
-
-
-  <div class="col-md-6">
-    <div id="map" style="width:100%; height: 100vh;"></div>
-
-  </div>
-
-  <div class="col-md-4">
-    <div class="row">
-
-      <div id="graph" style="width: 100%; height: 50vh"></div>
-
-    </div>
-    <div class="row" id="info" style="height: 50vh; overflow: scroll;">
-      <div class="row">
-          <hr>
-        <p id="spar">
-
-        </p>
         <hr>
-      </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; jodyphelan.github.io 2017</p>
+                </div>
+            </div>
+        </footer>
 
     </div>
+    <!-- /.container -->
 
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
 
-  </div>
-</div>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
 
+</body>
 
-<script src="definitions.js"></script>
-<script src="functions.js"></script>
-<script src="main.js"></script>
-
-<script>
-
-d3.select("#nValue").on("input", function() {
-  SNPs = this.value;
-  initData(SNPs,Clusters);
-  initForce();
-  initHist();
-  drawMap();
-  drawGraph();
-  if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
-
-});
-
-d3.select("#cValue").on("input", function(){
-  Clusters = this.value;
-  initData(SNPs,Clusters);
-  initForce();
-  initHist();
-  drawMap();
-  drawGraph();
-  console.log(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b}))
- if(bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})<=10 && bins.map(function(d){return d.num}).reduce(function(a,b){return a+b})>0){$("#colourNodeBtn").prop("disabled",false)} else {$("#colourNodeBtn").prop("disabled",true)}
-})
-
-d3.select("#colourNodeBtn").on("click", function(){
-  colourClusters(raw.nodes,raw.links)
-});
-
-d3.select("#nodeSearch").on("click", function(){
-  var nodeName =$("#nodeName").val()
-  switch (nodeName) {
-    case "event":
-      simulateChange("event");
-      break;
-    case "person":
-      simulateChange("person");
-      break;
-    default:
-      alert("Input \"person\" or \"event\"");
-      break;
-  }
-
-})
-
-
-  svg = d3.select("#graph").append("svg").attr("id","graphSvg");
-// Change the style of the cursor when over svg elements
-  svg.style("cursor", "crosshair");
-  g = svg.append("g");
-  svg.call(zoom);
-
-
-
-
-
-  initData(0,0);
-  initForce();
-  initMap();
-  initHist();
-
-  drawMap();
-  drawGraph();
-
-
-
-  </script>
-
-
-  </body>
-  </html>
+</html>
