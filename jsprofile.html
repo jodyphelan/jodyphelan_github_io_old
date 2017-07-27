@@ -1,0 +1,159 @@
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+<div id="lineage">Lineage</div>
+<div id="prog"></div>
+
+<script>
+document.getElementById("prog").innerHTML = "Progress = ["+Array(100).join("_")+"]"
+results = {'AAGCAGGAAAGGTAATACCA': 0, 'ACAGTACCCAGACGAGATCG': 0, 'ACGCTCGATTACGTCGATGC': 0, 'AGGAGCCGGAGGAGGTGTCT': 0, 'ATGCTTGGACTTGAGCAGGG': 0, 'ATGGAACGCTGGGTATTCGG': 0, 'CACCGTCGATGGTTCGCTGT': 0, 'CACGTCGGTATCGCCGGCGC': 0, 'CAGAGAGCAGCACCGAATAC': 0, 'CAGGTTCTGGCCGCGCATAT': 0, 'CATATCGCGAGTGCGCCGGC': 0,
+ 'CATGGTCGTCGTACCAGTGA': 0, 'CATGTCCACTAGCGTGTAGC': 0, 'CCAGATGGCGGTGCACCTGC': 0, 'CCGGGGTATTGCTGTGGCGT': 0, 'CCGGTCGATCGGGCTAGTGC': 0, 'CCGGTTGGAATCCGCGGGCC': 0, 'CGACCGCGGGCCGGGCATTC': 0, 'CGACCTCGGTTACCTCACCG': 0, 'CGACGAAGCGGACGACACTA': 0, 'CGAGGCGCTAGCCACCACCG': 0, 'CGAGTCCGCTCTGATGGTGT': 0, 'CGCGCTGATACGGGTCACCG': 0, 'CGCTTCCCCGGTCGCGTCTC': 0, 'CGGCCCGGCGGGTACCGGTA': 0, 'CGGCTTGGGCGTGGGCACCG': 0, 'CGGTGTGACAGTCGGTGTCC': 0, 'CGTCCGCACTGGCCATATCC': 0, 'CGTCGAATCTGGTTTGCGCC': 0, 'CGTCGAATTTCCCGATCATG': 0, 'CGTCGGTTCACTGCTGCGGC': 0, 'CGTGACGCCATCGTTGGTAA': 0, 'CGTGGCGGGATTCACGACGG': 0, 'CTCCAGGAAATAGAACTCAC': 0, 'CTCGCGCCGTTGGCCGTGCC': 0, 'CTGGTTATCAAAGTCGGTAA': 0, 'CTGTGGAGCACTCGCGTTGG': 0, 'CTTCGGGAAATGCGCTGGGA': 0, 'GACATACGGTGGCGGCACAC': 0, 'GCATTCCCCAAGCCGGTCAA': 0, 'GCCGGCGTCAGGTTGGTGCG': 0, 'GCGAGCGCCAGATTCGCCGC': 0, 'GCGCCTGCGAGTGTCCTCGT': 0, 'GCGGCGCAGTTTTATCACCC': 0, 'GCGGTCCAGTCCGTCGGAAA': 0, 'GGCACTCGCACAGGCAACCC': 0, 'GGCGTCAAAAGCCTTCTGTG': 0, 'GGCGTCTGCGACGGGCTGAG': 0, 'GGCGTTGACAGCTTTAACGG': 0, 'GGGACGGGGACTGTCCACCG': 0, 'GGTCGAGTACCCGGTGCAGG': 0, 'GGTCGATGCGCCTCCCGCCC': 0, 'GGTCGCCGCTTACCTGCTGC': 0, 'GGTGGACAAAGACGCGGTGA': 0, 'GTCGGCCATATCGGGCCCGA': 0,'GTTGATGCTTTCGGGCGTCG': 0,'TAACGGCAATACCGCGTGCT': 0,'TGAGTCCGCTTATATTCGAA': 0,'TGCGGTAATTACCGGATTGA': 0,'TGTTAGGGCTCACGTGCCGC': 0,'TTGGGAGGTAGGTTCGGGGC': 0,'TTGGGTACTTGACGGCATGG': 0,'TTTGACTCAAACGATTGCCG': 0}
+
+match2lin = {'AAGCAGGAAAGGTAATACCA': 'lineage3',
+ 'ACAGTACCCAGACGAGATCG': 'lineage4.6.1.1',
+ 'ACGCTCGATTACGTCGATGC': 'lineage4.2',
+ 'AGGAGCCGGAGGAGGTGTCT': 'lineage4.3.3',
+ 'ATGCTTGGACTTGAGCAGGG': 'lineage4.2.2',
+ 'ATGGAACGCTGGGTATTCGG': 'lineage1.1.2',
+ 'CACCGTCGATGGTTCGCTGT': 'lineage2.2.1.1',
+ 'CACGTCGGTATCGCCGGCGC': 'lineage4.3.4',
+ 'CAGAGAGCAGCACCGAATAC': 'lineage4.1.2',
+ 'CAGGTTCTGGCCGCGCATAT': 'lineage1.2.1',
+ 'CATATCGCGAGTGCGCCGGC': 'lineage4.6.1',
+ 'CATGGTCGTCGTACCAGTGA': 'lineage4',
+ 'CATGTCCACTAGCGTGTAGC': 'lineage4.1.1.2',
+ 'CCAGATGGCGGTGCACCTGC': 'lineage4.3',
+ 'CCGGGGTATTGCTGTGGCGT': 'lineage4.3.1',
+ 'CCGGTCGATCGGGCTAGTGC': 'lineage4.2.1',
+ 'CCGGTTGGAATCCGCGGGCC': 'lineage4.4.2',
+ 'CGACCGCGGGCCGGGCATTC': 'lineage4.6.1.2',
+ 'CGACCTCGGTTACCTCACCG': 'lineage3.1.2.1',
+ 'CGACGAAGCGGACGACACTA': 'lineage4.6.2.1',
+ 'CGAGGCGCTAGCCACCACCG': 'lineage4.3.2',
+ 'CGAGTCCGCTCTGATGGTGT': 'lineage1',
+ 'CGCGCTGATACGGGTCACCG': 'lineage4.2.2.1',
+ 'CGCTTCCCCGGTCGCGTCTC': 'lineage4.4.1.2',
+ 'CGGCCCGGCGGGTACCGGTA': 'lineage3.1',
+ 'CGGCTTGGGCGTGGGCACCG': 'lineage4.1.1.1',
+ 'CGGTGTGACAGTCGGTGTCC': 'lineage4.3.4.2.1',
+ 'CGTCCGCACTGGCCATATCC': 'lineage2.2',
+ 'CGTCGAATCTGGTTTGCGCC': 'lineage4.9',
+ 'CGTCGAATTTCCCGATCATG': 'lineageBOV',
+ 'CGTCGGTTCACTGCTGCGGC': 'lineage4.3.4.1',
+ 'CGTGACGCCATCGTTGGTAA': 'lineage4.8',
+ 'CGTGGCGGGATTCACGACGG': 'lineage1.2.2',
+ 'CTCCAGGAAATAGAACTCAC': 'lineage3.1.1',
+ 'CTCGCGCCGTTGGCCGTGCC': 'lineage4.5',
+ 'CTGGTTATCAAAGTCGGTAA': 'lineage2.2.1.2',
+ 'CTGTGGAGCACTCGCGTTGG': 'lineage4.6.2.2',
+ 'CTTCGGGAAATGCGCTGGGA': 'lineage1.1.3',
+ 'GACATACGGTGGCGGCACAC': 'lineage3.1.2.2',
+ 'GCATTCCCCAAGCCGGTCAA': 'lineage4.1',
+ 'GCCGGCGTCAGGTTGGTGCG': 'lineage3.1.2',
+ 'GCGAGCGCCAGATTCGCCGC': 'lineage4.1.1.3',
+ 'GCGCCTGCGAGTGTCCTCGT': 'lineage4.4.1',
+ 'GCGGCGCAGTTTTATCACCC': 'lineage4.3.2.1',
+ 'GCGGTCCAGTCCGTCGGAAA': 'lineage1.1.1',
+ 'GGCACTCGCACAGGCAACCC': 'lineage1.1.1.1',
+ 'GGCGTCAAAAGCCTTCTGTG': 'lineage6',
+ 'GGCGTCTGCGACGGGCTGAG': 'lineage2.1',
+ 'GGCGTTGACAGCTTTAACGG': 'lineage7',
+ 'GGGACGGGGACTGTCCACCG': 'lineage2.2.2',
+ 'GGTCGAGTACCCGGTGCAGG': 'lineage5',
+ 'GGTCGATGCGCCTCCCGCCC': 'lineage4.7',
+ 'GGTCGCCGCTTACCTGCTGC': 'lineage1.1',
+ 'GGTGGACAAAGACGCGGTGA': 'lineage4.4.1.1',
+ 'GTCGGCCATATCGGGCCCGA': 'lineage2',
+ 'GTTGATGCTTTCGGGCGTCG': 'lineage2.2.1',
+ 'TAACGGCAATACCGCGTGCT': 'lineage4.1.1',
+ 'TGAGTCCGCTTATATTCGAA': 'lineage4.1.2.1',
+ 'TGCGGTAATTACCGGATTGA': 'lineage4.6.2',
+ 'TGTTAGGGCTCACGTGCCGC': 'lineage4.3.4.2',
+ 'TTGGGAGGTAGGTTCGGGGC': 'lineage4.4',
+ 'TTGGGTACTTGACGGCATGG': 'lineage4.6',
+ 'TTTGACTCAAACGATTGCCG': 'lineageBOV_AFRI'}
+
+find_markers = function(d){
+  matches = d.match(/(CGACGAAGCGGACGACACTA|CGCGCTGATACGGGTCACCG|ATGGAACGCTGGGTATTCGG|GCGGCGCAGTTTTATCACCC|GGGACGGGGACTGTCCACCG|GACATACGGTGGCGGCACAC|CCGGTTGGAATCCGCGGGCC|GGTCGAGTACCCGGTGCAGG|TTGGGTACTTGACGGCATGG|GCATTCCCCAAGCCGGTCAA|ATGCTTGGACTTGAGCAGGG|TGAGTCCGCTTATATTCGAA|CTGTGGAGCACTCGCGTTGG|TTTGACTCAAACGATTGCCG|CGAGTCCGCTCTGATGGTGT|GCGAGCGCCAGATTCGCCGC|CGGCTTGGGCGTGGGCACCG|GGCGTTGACAGCTTTAACGG|GGCACTCGCACAGGCAACCC|GGCGTCAAAAGCCTTCTGTG|AAGCAGGAAAGGTAATACCA|CATGGTCGTCGTACCAGTGA|CGCTTCCCCGGTCGCGTCTC|GGTGGACAAAGACGCGGTGA|AGGAGCCGGAGGAGGTGTCT|CATATCGCGAGTGCGCCGGC|CATGTCCACTAGCGTGTAGC|GTCGGCCATATCGGGCCCGA|CCGGGGTATTGCTGTGGCGT|TAACGGCAATACCGCGTGCT|CGTGGCGGGATTCACGACGG|CTCGCGCCGTTGGCCGTGCC|GGCGTCTGCGACGGGCTGAG|CCAGATGGCGGTGCACCTGC|CCGGTCGATCGGGCTAGTGC|TGTTAGGGCTCACGTGCCGC|GTTGATGCTTTCGGGCGTCG|ACAGTACCCAGACGAGATCG|CAGAGAGCAGCACCGAATAC|CGGCCCGGCGGGTACCGGTA|CTCCAGGAAATAGAACTCAC|CGACCGCGGGCCGGGCATTC|CGACCTCGGTTACCTCACCG|CAGGTTCTGGCCGCGCATAT|GCGGTCCAGTCCGTCGGAAA|CACGTCGGTATCGCCGGCGC|TTGGGAGGTAGGTTCGGGGC|CGTCGAATTTCCCGATCATG|ACGCTCGATTACGTCGATGC|CTTCGGGAAATGCGCTGGGA|CGGTGTGACAGTCGGTGTCC|CGTCGAATCTGGTTTGCGCC|CGTCCGCACTGGCCATATCC|TGCGGTAATTACCGGATTGA|GCCGGCGTCAGGTTGGTGCG|GCGCCTGCGAGTGTCCTCGT|GGTCGCCGCTTACCTGCTGC|CTGGTTATCAAAGTCGGTAA|CGTGACGCCATCGTTGGTAA|CACCGTCGATGGTTCGCTGT|GGTCGATGCGCCTCCCGCCC|CGAGGCGCTAGCCACCACCG|CGTCGGTTCACTGCTGCGGC)/g)
+
+  if (matches!=null){
+    for (i=0;i<=matches.length;i++){
+      results[matches[i]]++
+    }
+  }
+}
+num_lines_per_star = 0
+cnt = 0
+num_stars = 0
+translate_results = function(){
+ htmlstring = ""
+ for (i=0; i<=Object.keys(results).length;i++){
+   if (results[Object.keys(results)[i]]!=0){
+     htmlstring = htmlstring+=match2lin[Object.keys(results)[i]]
+   }
+ }
+ document.getElementById("lineage").innerHTML = htmlstring
+}
+
+var byte_offset =0;
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    for (var i = 0, f; f = files[i]; i++) {
+      reader = new FileReader();
+//      reader.onload = (function(d){console.log(d)},f)
+
+      reader.onload = (function(theFile) {
+        console.log(theFile)
+        file_len = theFile.size
+        num_lines_per_star = Math.ceil(file_len/(64*1024)/100)
+        parseFile(theFile,find_markers)})(f);
+
+    }
+  }
+
+  function parseFile(file, callback) {
+      var fileSize   = file.size;
+      var chunkSize  = 64 * 1024; // bytes
+      var offset     = 0;
+      var self       = this; // we need a reference to the current object
+      var chunkReaderBlock = null;
+
+      var readEventHandler = function(evt) {
+          if (evt.target.error == null) {
+              offset += evt.target.result.length;
+
+              callback(evt.target.result); // callback for handling read chunk
+          } else {
+              console.log("Read error: " + evt.target.error);
+              return;
+          }
+          if (offset >= fileSize) {
+            translate_results()
+              console.log("Done reading file");
+              return;
+          }
+
+          // of to the next chunk
+          chunkReaderBlock(offset, chunkSize, file);
+      }
+
+      chunkReaderBlock = function(_offset, length, _file) {
+          var r = new FileReader();
+          var blob = _file.slice(_offset, length + _offset);
+          cnt++
+          if (cnt%num_lines_per_star==0){
+            num_stars++
+            document.getElementById("prog").innerHTML = "Progress = ["+Array(num_stars).join("*")+Array(100-num_stars).join("_")+"]"
+          }
+          r.onload = readEventHandler;
+          r.readAsText(blob);
+      }
+
+      // now let's start the read with the first block
+      chunkReaderBlock(offset, chunkSize, file);
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
+
