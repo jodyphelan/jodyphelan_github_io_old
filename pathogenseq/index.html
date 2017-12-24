@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pathogenseq pipeline documentation &mdash; pathogenseq 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pathogenseq 0.1 documentation" href="#"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> pathogenseq
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Pathogenseq pipeline documentation</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#package-structure">Package structure</a></li>
+<li><a class="reference internal" href="#performing-qc-on-a-fastq-file-s">Performing QC on a fastQ file(s)</a></li>
+<li><a class="reference internal" href="#performing-mapping">Performing mapping</a></li>
+<li><a class="reference internal" href="#extract-stats-on-bam-files">Extract stats on BAM files</a></li>
+<li><a class="reference internal" href="#merging-gvcf-files">Merging gVCF files</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pathogenseq</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Pathogenseq pipeline documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pathogenseq-pipeline-documentation">
+<h1>Pathogenseq pipeline documentation<a class="headerlink" href="#pathogenseq-pipeline-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>This package contains the code to run many of the basic QC and processing operations on NGS data.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone git@github.com:jodyphelan/pathogenseq.git
+<span class="nb">cd</span>  pathogenseq
+python setup.py install
+</pre></div>
+</div>
+</div>
+<div class="section" id="package-structure">
+<h2>Package structure<a class="headerlink" href="#package-structure" title="Permalink to this headline">¶</a></h2>
+<p>The package is divided into modules:</p>
+<ol class="arabic simple">
+<li><em>qc</em> - for performing QC operations</li>
+<li><em>map_call_snps</em> - performing mapping and calling of SNPs</li>
+<li><em>vcf_merge</em> - merging gVCF into multi-sample VCFs</li>
+<li><em>mvcf</em> - common operations on multi-sample VCFs</li>
+<li><em>fasta</em> - representing a fasta as a python data structure</li>
+<li><em>files</em> - functions to handle calls to the commandline and ckecking files are present</li>
+<li><em>logger</em> - <strong>(in development)</strong> will be used to create log files</li>
+</ol>
+<p>These modules are imported into the main <em>pathogenseq</em> module and their associated classes and functions can be accessed like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">qc_fastq</span><span class="p">(</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/read_1&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/read_2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The idea is that the modules are highly flexible and are easy to integrate into scripts.
+Some example scripts are present in the <code class="docutils literal"><span class="pre">scripts</span></code> directory.</p>
+<p>A very simple example script to calculate fraction of genome covered at predefined coverage cutoff could be the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="kn">as</span> <span class="nn">ps</span>
+
+<span class="n">bam_file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">ref_file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">bamqc</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">qc_bam</span><span class="p">(</span><span class="n">bam_file</span><span class="p">,</span><span class="n">ref_file</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">])</span>
+<span class="k">print</span> <span class="s2">&quot;Fraction genome coverage at depth:&quot;</span>
+<span class="k">print</span> <span class="s2">&quot;1 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bamqc</span><span class="o">.</span><span class="n">genome_cov</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">print</span> <span class="s2">&quot;5 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bamqc</span><span class="o">.</span><span class="n">genome_cov</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+<span class="k">print</span> <span class="s2">&quot;10 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bamqc</span><span class="o">.</span><span class="n">genome_cov</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="performing-qc-on-a-fastq-file-s">
+<h2>Performing QC on a fastQ file(s)<a class="headerlink" href="#performing-qc-on-a-fastq-file-s" title="Permalink to this headline">¶</a></h2>
+<p>To perform QC on a fastq files we can use the <code class="docutils literal"><span class="pre">qc_fastq</span></code> class. To initialise the class we need the location of the read files and a prefix for any output files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">qc_fastq</span><span class="p">(</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/read_1.fq.gz&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/read_2.fq.gz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can now calculate metrics such as the number of reads and median read length.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># number of reads</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span><span class="o">.</span><span class="n">read_num</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># median read len</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span><span class="o">.</span><span class="n">median_read_len</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get approx depth for a 4.4 Mb genome</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span><span class="o">.</span><span class="n">approx_depth</span><span class="p">(</span><span class="s2">&quot;4.4Mb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Additionally we can run kraken (using a pre-generated database). We can also create filtered fastq files with only reads corresponding to our genome of interest (using the NCBI Taxonomic ID: <a class="reference external" href="https://www.ncbi.nlm.nih.gov/taxonomy">https://www.ncbi.nlm.nih.gov/taxonomy</a>). Multiple taxonomies can be supplied as a comma delimited string.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># filter out any reads not belonging to the Mycobacterium tuberculosis complex</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># this will create two files with the user provided prefix and a .kraken_filt.fastq.gz extension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span><span class="o">.</span><span class="n">run_kraken</span><span class="p">(</span><span class="s2">&quot;/opt/storage2/ernest/kraken/kraken/standard_db&quot;</span><span class="p">,</span><span class="s2">&quot;77643,1773,78331,33894,1765&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get a mapping class object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fastqqc</span><span class="o">.</span><span class="n">get_mapper_from_kraken</span><span class="p">(</span><span class="s2">&quot;/path/to/reference&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="performing-mapping">
+<h2>Performing mapping<a class="headerlink" href="#performing-mapping" title="Permalink to this headline">¶</a></h2>
+<p>We can use the <code class="docutils literal"><span class="pre">mapping</span></code> class to access basic methods involved with QC, mapping and variant detections.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapper</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="s2">&quot;/path/to/read_1.fq.gz&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/read_2.fq.gz&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/reference.fasta&quot;</span><span class="p">,</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span><span class="n">threads</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># perform basic trimming</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapper</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># perform mapping with BWA (bowtie available too)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapper</span><span class="o">.</span><span class="n">map</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># perform SNP calling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapper</span><span class="o">.</span><span class="n">call_snps</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get qc_bam class from output bam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mapper</span><span class="o">.</span><span class="n">get_bam_qc</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extract-stats-on-bam-files">
+<h2>Extract stats on BAM files<a class="headerlink" href="#extract-stats-on-bam-files" title="Permalink to this headline">¶</a></h2>
+<p>We can use the <code class="docutils literal"><span class="pre">qc_bam</span></code> class to access methods to extract stats from bam files.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">qc_bam</span><span class="p">(</span><span class="s2">&quot;/path/to/bam&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/ref.fasta&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get a dict with the fraction of genome covered for predefined depth thresholds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">genome_cov</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get median depth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">med_dp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get percentage of reads mapping</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">pct_reads_mapped</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get a dict with the coverage across each position in the genome</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># keys are the difference chromosomes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">ref_dp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># dump the ref_dp dict into a json file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">save_cov</span><span class="p">(</span><span class="s2">&quot;/path/to/output.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get the mean coverage across regions in a BED file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">bed_cov</span><span class="p">(</span><span class="s2">&quot;/path/to/bed&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># create coverage plot for a chromosome</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bamqc</span><span class="o">.</span><span class="n">plot_cov</span><span class="p">(</span><span class="s2">&quot;Chromosome&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/output.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="merging-gvcf-files">
+<h2>Merging gVCF files<a class="headerlink" href="#merging-gvcf-files" title="Permalink to this headline">¶</a></h2>
+<p>Merging vcf files can be done with the <code class="docutils literal"><span class="pre">vcf_merge</span></code> class. VCF files must be <strong>bgzipped</strong>
+If you have a file containing the sample names (one per line) and directory structure like this:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>└── vcf
+    ├── sample1.vcf.gz
+    ├── sample2.vcf.gz
+    └── sample3.vcf.gz
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pathogenseq</span> <span class="k">as</span> <span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span> <span class="o">=</span> <span class="n">vcf_merge</span><span class="p">(</span><span class="s2">&quot;/path/to/samples.txt&quot;</span><span class="p">,</span><span class="s2">&quot;/path/to/ref.fasta&quot;</span><span class="p">,</span><span class="s2">&quot;prefix&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># perform merging</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">merge</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># extract only high quality SNPs from merged file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">extract_variants</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># filter out non unique regions of the genome</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">filt_non_uniq</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># filter out samples</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">sample_filt</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># mask mixed positions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">mask_mixed</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># generate a multi-fasta file with variants</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vcf</span><span class="o">.</span><span class="n">generate_fasta</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Jody Phelan.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

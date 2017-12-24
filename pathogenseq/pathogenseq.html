@@ -1,0 +1,773 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pathogenseq package &mdash; pathogenseq 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pathogenseq 0.1 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pathogenseq
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pathogenseq package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.fasta">pathogenseq.fasta module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.files">pathogenseq.files module</a></li>
+<li><a class="reference internal" href="#pathogenseq-logger-module">pathogenseq.logger module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.map_call_snps">pathogenseq.map_call_snps module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.mvcf">pathogenseq.mvcf module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.qc">pathogenseq.qc module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.vcf_merge">pathogenseq.vcf_merge module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pathogenseq</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pathogenseq package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pathogenseq.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pathogenseq-package">
+<h1>pathogenseq package<a class="headerlink" href="#pathogenseq-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pathogenseq.fasta">
+<span id="pathogenseq-fasta-module"></span><h2>pathogenseq.fasta module<a class="headerlink" href="#module-pathogenseq.fasta" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pathogenseq.fasta.fasta">
+<em class="property">class </em><code class="descclassname">pathogenseq.fasta.</code><code class="descname">fasta</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to represent fasta seuqnces in a python dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Location of the fasta file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A fasta class object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#module-pathogenseq.fasta" title="pathogenseq.fasta">fasta</a></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pathogenseq.fasta.fasta.fa_dict">
+<code class="descname">fa_dict</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.fasta.fasta.fa_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.fasta.fasta.locate_motifs">
+<code class="descname">locate_motifs</code><span class="sig-paren">(</span><em>motif</em>, <em>strand='both'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta.locate_motifs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get locations of motifs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.fasta.fasta.n50">
+<code class="descname">n50</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta.n50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return n50</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.fasta.fasta.seq_names">
+<code class="descname">seq_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta.seq_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return sequence names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.fasta.fasta.total_len">
+<code class="descname">total_len</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta.total_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return total length of all sequences</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.fasta.revcom">
+<code class="descclassname">pathogenseq.fasta.</code><code class="descname">revcom</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.revcom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return reverse complement of a sequence</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathogenseq.files">
+<span id="pathogenseq-files-module"></span><h2>pathogenseq.files module<a class="headerlink" href="#module-pathogenseq.files" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pathogenseq.files.bwa_index">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">bwa_index</code><span class="sig-paren">(</span><em>ref</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.bwa_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create BWA index for a reference</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.file_len">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">file_len</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.file_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return length of a file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.filecheck">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">filecheck</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.filecheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if file is there and quit if it isn’t</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.gz_file_len">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">gz_file_len</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.gz_file_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return lengths of a gzipped file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.index_bam">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">index_bam</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.index_bam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexing a bam file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.nofile">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">nofile</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.nofile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if file does not exist</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.rm_files">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">rm_files</code><span class="sig-paren">(</span><em>x</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.rm_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a files in a list format</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.run_cmd">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">run_cmd</code><span class="sig-paren">(</span><em>cmd</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.run_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper to run a command using subprocess with 3 levels of verbosity and automatic exiting if command failed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.files.verify_fq">
+<code class="descclassname">pathogenseq.files.</code><code class="descname">verify_fq</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.files.verify_fq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if input is a valid fastQ file</p>
+</dd></dl>
+
+</div>
+<div class="section" id="pathogenseq-logger-module">
+<h2>pathogenseq.logger module<a class="headerlink" href="#pathogenseq-logger-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pathogenseq.map_call_snps">
+<span id="pathogenseq-map-call-snps-module"></span><h2>pathogenseq.map_call_snps module<a class="headerlink" href="#module-pathogenseq.map_call_snps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pathogenseq.map_call_snps.mapping">
+<em class="property">class </em><code class="descclassname">pathogenseq.map_call_snps.</code><code class="descname">mapping</code><span class="sig-paren">(</span><em>r1</em>, <em>r2</em>, <em>ref_file</em>, <em>prefix</em>, <em>threads=20</em>, <em>platform='Illumina'</em>, <em>call_method='optimise'</em>, <em>mapper='bwa'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for performing mapping to reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>r1</strong> (<em>str</em>) – Location of the first read [required]</li>
+<li><strong>r2</strong> (<em>str</em>) – Location of the second read (if any) use NoneType if there is none.</li>
+<li><strong>ref_file</strong> (<em>str</em>) – Location of the refrence file [required]</li>
+<li><strong>prefix</strong> (<em>str</em>) – Prefix for the output files generated (e.g. &lt;prefix&gt;.bam)</li>
+<li><strong>threads</strong> (<em>int</em>) – Number of threads to use</li>
+<li><strong>platform</strong> (<em>str</em>) – Platform used in sequencing (currently only ‘Illumina’ is supported)</li>
+<li><strong>call_method</strong> (<em>str</em>) – Method used to call variants. Can be <code class="docutils literal"><span class="pre">optimise</span></code>, <code class="docutils literal"><span class="pre">low</span></code> or <code class="docutils literal"><span class="pre">high</span></code>.</li>
+<li><strong>mapper</strong> (<em>str</em>) – Mapping tool. Can be <code class="docutils literal"><span class="pre">bwa</span></code> or <code class="docutils literal"><span class="pre">bowtie</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A mapping class object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pathogenseq.map_call_snps.mapping" title="pathogenseq.map_call_snps.mapping">mapping</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pathogenseq.map_call_snps.mapping.call_method">
+<code class="descname">call_method</code><em class="property"> = 'high'</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.call_method" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.map_call_snps.mapping.call_snps">
+<code class="descname">call_snps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.call_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform SNP calling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.map_call_snps.mapping.get_bam_qc">
+<code class="descname">get_bam_qc</code><span class="sig-paren">(</span><em>cov_thresholds=[1, 5, 10, 100]</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.get_bam_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a qc_bam object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cov_thresholds</strong> (<em>list</em>) – List of integers to use in the percentage genome covered calculation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A qc_bam object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pathogenseq.qc.qc_bam" title="pathogenseq.qc.qc_bam">qc_bam</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.map_call_snps.mapping.map">
+<code class="descname">map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform mapping</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.map_call_snps.mapping.mapper">
+<code class="descname">mapper</code><em class="property"> = 'bwa'</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.mapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.map_call_snps.mapping.paired">
+<code class="descname">paired</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.paired" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.map_call_snps.mapping.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.map_call_snps.mapping.trim">
+<code class="descname">trim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.trim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform trimming</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathogenseq.mvcf">
+<span id="pathogenseq-mvcf-module"></span><h2>pathogenseq.mvcf module<a class="headerlink" href="#module-pathogenseq.mvcf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pathogenseq.mvcf.bcf">
+<em class="property">class </em><code class="descclassname">pathogenseq.mvcf.</code><code class="descname">bcf</code><span class="sig-paren">(</span><em>filename</em>, <em>prefix=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.mvcf.bcf" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pathogenseq.mvcf.bcf.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>ref_file</em>, <em>gff_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.mvcf.bcf.annotate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.mvcf.bcf.extract_matrix">
+<code class="descname">extract_matrix</code><span class="sig-paren">(</span><em>matrix_file=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.mvcf.bcf.extract_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.mvcf.bcf.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.mvcf.bcf.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.mvcf.bcf.samples">
+<code class="descname">samples</code><em class="property"> = []</em><a class="headerlink" href="#pathogenseq.mvcf.bcf.samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathogenseq.qc">
+<span id="pathogenseq-qc-module"></span><h2>pathogenseq.qc module<a class="headerlink" href="#module-pathogenseq.qc" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pathogenseq.qc.flagstat">
+<code class="descclassname">pathogenseq.qc.</code><code class="descname">flagstat</code><span class="sig-paren">(</span><em>bam_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.flagstat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.qc.get_genome_cov">
+<code class="descclassname">pathogenseq.qc.</code><code class="descname">get_genome_cov</code><span class="sig-paren">(</span><em>bam_file</em>, <em>ref_file</em>, <em>min_dp</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.get_genome_cov" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.qc.gsize_convert">
+<code class="descclassname">pathogenseq.qc.</code><code class="descname">gsize_convert</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.gsize_convert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pathogenseq.qc.qc_bam">
+<em class="property">class </em><code class="descclassname">pathogenseq.qc.</code><code class="descname">qc_bam</code><span class="sig-paren">(</span><em>bam, ref, cov_thresholds=[5, 10, 20]</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to extract basic QC stats and run QC programs on fastQ files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bam</strong> (<em>str</em>) – Bam file</li>
+<li><strong>ref</strong> (<em>str</em>) – Refrence fasta</li>
+<li><strong>cov_thresholds</strong> (<em>list</em>) – List of integers to use in the percentage genome covered calculation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A qc_bam class object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pathogenseq.qc.qc_bam" title="pathogenseq.qc.qc_bam">qc_bam</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_bam.bam">
+<code class="descname">bam</code><em class="property"> = None</em><a class="headerlink" href="#pathogenseq.qc.qc_bam.bam" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_bam.bed_cov">
+<code class="descname">bed_cov</code><span class="sig-paren">(</span><em>bed_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam.bed_cov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with mean depth across selected regions in BED file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bed_file</strong> (<em>str</em>) – A bed file with the 4th column containing the region ID</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with mean depth across selected regions</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_bam.gff_cov">
+<code class="descname">gff_cov</code><span class="sig-paren">(</span><em>gff_file</em>, <em>key='ID'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam.gff_cov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with mean depth across selected regions in GFF file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gff_file</strong> (<em>str</em>) – A gff file region coordinates</li>
+<li><strong>key</strong> (<em>str</em>) – A key to use as the region ID (e.g. for ID=katG the key is ‘ID’)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with mean depth across selected regions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_bam.plot_cov">
+<code class="descname">plot_cov</code><span class="sig-paren">(</span><em>chrom</em>, <em>imgfile</em>, <em>window=10000</em>, <em>step=5000</em>, <em>optimise=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam.plot_cov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot coverage across chromosomes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chrom</strong> (<em>str</em>) – Chromosome name</li>
+<li><strong>imgfile</strong> (<em>str</em>) – Name of the output png</li>
+<li><strong>window</strong> (<em>int</em>) – Window size for the sliding window coverage calculation</li>
+<li><strong>step</strong> (<em>int</em>) – Step size for the sliding window coverage calculation</li>
+<li><strong>optimise</strong> (<em>bool</em>) – Optimise window and step size for chromosome len</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_bam.ref">
+<code class="descname">ref</code><em class="property"> = None</em><a class="headerlink" href="#pathogenseq.qc.qc_bam.ref" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_bam.region_cov">
+<code class="descname">region_cov</code><span class="sig-paren">(</span><em>regions</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam.region_cov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with mean depth across selected regions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>regions</strong> (<em>list</em>) – A list with each element consisting of a <code class="docutils literal"><span class="pre">tuple</span></code> with 4 strings: 1) chromosome, 2) start, 3) end and 4) ID</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with mean depth across selected regions</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_bam.save_cov">
+<code class="descname">save_cov</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_bam.save_cov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save coverage to a json file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pathogenseq.qc.qc_fastq">
+<em class="property">class </em><code class="descclassname">pathogenseq.qc.</code><code class="descname">qc_fastq</code><span class="sig-paren">(</span><em>prefix</em>, <em>fq1</em>, <em>fq2=None</em>, <em>optimise=True</em>, <em>threads=20</em>, <em>kraken_db=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to extract basic QC stats and run QC programs on fastQ files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prefix</strong> (<em>str</em>) – Prefix for output files</li>
+<li><strong>fq1</strong> (<em>str</em>) – First read file [required]</li>
+<li><strong>fq2</strong> (<em>str</em>) – Second read file. Pass NoneType if there is no second read</li>
+<li><strong>optimise</strong> (<em>Bool</em>) – Choose if you want to calculate metrics based on whole read file or based on the first 10 percent.</li>
+<li><strong>threads</strong> (<em>int</em>) – Number of threads to use for multithreaded methods</li>
+<li><strong>kraken_db</strong> (<em>str</em>) – Location of the kraken database (if needed)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A qc_fastq class object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pathogenseq.qc.qc_fastq" title="pathogenseq.qc.qc_fastq">qc_fastq</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pathogenseq.qc.qc_fastq.approx_depth">
+<code class="descname">approx_depth</code><span class="sig-paren">(</span><em>genome_size</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq.approx_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return approx depth for a given genome size</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_fastq.paired">
+<code class="descname">paired</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.paired" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_fastq.params">
+<code class="descname">params</code><em class="property"> = {'fq2': '', 'fq1': ''}</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_fastq.read_len">
+<code class="descname">read_len</code><em class="property"> = []</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.read_len" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.qc.qc_fastq.read_num">
+<code class="descname">read_num</code><em class="property"> = 0</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.read_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.qc.qc_fastq.run_kraken">
+<code class="descname">run_kraken</code><span class="sig-paren">(</span><em>filter_fastq=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq.run_kraken" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run kraken with an option to create filtered fastq files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter_fastq</strong> (<em>str</em>) – NCBI Taxonomy code use when extracting reads</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathogenseq.vcf_merge">
+<span id="pathogenseq-vcf-merge-module"></span><h2>pathogenseq.vcf_merge module<a class="headerlink" href="#module-pathogenseq.vcf_merge" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pathogenseq.vcf_merge.create_mappability_file">
+<code class="descclassname">pathogenseq.vcf_merge.</code><code class="descname">create_mappability_file</code><span class="sig-paren">(</span><em>ref_file</em>, <em>threads</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.create_mappability_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pathogenseq.vcf_merge.vcf_merge">
+<em class="property">class </em><code class="descclassname">pathogenseq.vcf_merge.</code><code class="descname">vcf_merge</code><span class="sig-paren">(</span><em>sample_file</em>, <em>ref_file</em>, <em>prefix</em>, <em>mappability_file=None</em>, <em>vcf_dir='.'</em>, <em>min_dp=10</em>, <em>fmiss=0.1</em>, <em>miss_cut=0.15</em>, <em>mix_cut=0.15</em>, <em>low_cov=False</em>, <em>bed_include=False</em>, <em>bed_exclude=False</em>, <em>threads=20</em>, <em>vcf_ext='vcf.gz'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to manage the merging of gVCF files and subsequence filtering</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sample_file</strong> (<em>str</em>) – </li>
+<li><strong>containing the sample names with 1 per line</strong> (<em>File</em>) – </li>
+<li><strong>ref_file</strong> (<em>str</em>) – Reference file</li>
+<li><strong>prefix</strong> (<em>str</em>) – Prefix for all output files</li>
+<li><strong>mappability_file</strong> (<em>str</em>) – Name of the mappability file (will generage if NoneType given)</li>
+<li><strong>vcf_dir</strong> (<em>str</em>) – Directory contianing the gVCF files</li>
+<li><strong>min_dp</strong> (<em>int</em>) – Minimum depth for calls</li>
+<li><strong>fmiss</strong> (<em>float</em>) – The maximum fraction of missing data to keep SNP position</li>
+<li><strong>miss_cut</strong> (<em>float</em>) – Max fraction cutoff for missing calls per sample</li>
+<li><strong>mix_cut</strong> (<em>float</em>) – Max fraction cutoff for mixed calls per sample</li>
+<li><strong>low_cov</strong> (<em>bool</em>) – Optimise filtering for low coverage sequencing</li>
+<li><strong>bed_include</strong> (<em>str</em>) – Only include variants in regions specified in the BED files</li>
+<li><strong>bed_exclude</strong> (<em>str</em>) – Exclude variants in regions specified in the BED files</li>
+<li><strong>vcf_ext</strong> (<em>str</em>) – The extension the the VCF files have (after sample name)</li>
+<li><strong>threads</strong> (<em>int</em>) – Number of threads to use</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A vcf_merge class object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#module-pathogenseq.vcf_merge" title="pathogenseq.vcf_merge">vcf_merge</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.extract_variants">
+<code class="descname">extract_variants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.extract_variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract all variant positions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.filt_non_uniq">
+<code class="descname">filt_non_uniq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.filt_non_uniq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out non unique positions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.generate_fasta">
+<code class="descname">generate_fasta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.generate_fasta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a fasta file from the SNPs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.mask_mixed">
+<code class="descname">mask_mixed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.mask_mixed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a BCF file with mixed called masked as missing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge gVCF files</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.vcf_merge.vcf_merge.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.vcf_merge.vcf_merge.sample_filt">
+<code class="descname">sample_filt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.sample_filt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out low quality samples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.vcf_merge.vcf_merge.samples">
+<code class="descname">samples</code><em class="property"> = []</em><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge.samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathogenseq">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathogenseq" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Jody Phelan.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
