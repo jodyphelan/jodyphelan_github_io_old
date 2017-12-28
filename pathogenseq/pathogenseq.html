@@ -94,9 +94,10 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.fasta">pathogenseq.fasta module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.files">pathogenseq.files module</a></li>
-<li><a class="reference internal" href="#pathogenseq-logger-module">pathogenseq.logger module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.logger">pathogenseq.logger module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.map_call_snps">pathogenseq.map_call_snps module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.mvcf">pathogenseq.mvcf module</a></li>
+<li><a class="reference internal" href="#module-pathogenseq.phylo">pathogenseq.phylo module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.qc">pathogenseq.qc module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq.vcf_merge">pathogenseq.vcf_merge module</a></li>
 <li><a class="reference internal" href="#module-pathogenseq">Module contents</a></li>
@@ -283,14 +284,70 @@
 </dd></dl>
 
 </div>
-<div class="section" id="pathogenseq-logger-module">
-<h2>pathogenseq.logger module<a class="headerlink" href="#pathogenseq-logger-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pathogenseq.logger">
+<span id="pathogenseq-logger-module"></span><h2>pathogenseq.logger module<a class="headerlink" href="#module-pathogenseq.logger" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pathogenseq.logger.check_log">
+<code class="descclassname">pathogenseq.logger.</code><code class="descname">check_log</code><span class="sig-paren">(</span><em>key</em>, <em>log_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.logger.check_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pathogenseq.logger.log">
+<code class="descclassname">pathogenseq.logger.</code><code class="descname">log</code><span class="sig-paren">(</span><em>key</em>, <em>log_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.logger.log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-pathogenseq.map_call_snps">
 <span id="pathogenseq-map-call-snps-module"></span><h2>pathogenseq.map_call_snps module<a class="headerlink" href="#module-pathogenseq.map_call_snps" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pathogenseq.map_call_snps.mapping">
-<em class="property">class </em><code class="descclassname">pathogenseq.map_call_snps.</code><code class="descname">mapping</code><span class="sig-paren">(</span><em>r1</em>, <em>r2</em>, <em>ref_file</em>, <em>prefix</em>, <em>threads=20</em>, <em>platform='Illumina'</em>, <em>call_method='optimise'</em>, <em>mapper='bwa'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.bam">
+<em class="property">class </em><code class="descclassname">pathogenseq.map_call_snps.</code><code class="descname">bam</code><span class="sig-paren">(</span><em>bam_file</em>, <em>prefix</em>, <em>ref_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pathogenseq.map_call_snps.bam.call_snps">
+<code class="descname">call_snps</code><span class="sig-paren">(</span><em>ref_file=None</em>, <em>call_method='optimise'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam.call_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform SNP calling</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ref_file</strong> (<em>str</em>) – reference file (not required if passed to the bam initiator).</li>
+<li><strong>call_method</strong> (<em>str</em>) – optimise variant calling based on high or low depth. Options: high|low|optimise</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pathogenseq.map_call_snps.bam.get_bam_qc">
+<code class="descname">get_bam_qc</code><span class="sig-paren">(</span><em>ref_file, cov_thresholds=[1, 5, 10, 20]</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam.get_bam_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a qc_bam object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cov_thresholds</strong> (<em>list</em>) – List of integers to use in the percentage genome covered calculation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A qc_bam object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pathogenseq.qc.qc_bam" title="pathogenseq.qc.qc_bam">qc_bam</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.map_call_snps.bam.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.map_call_snps.bam.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pathogenseq.map_call_snps.fastq">
+<em class="property">class </em><code class="descclassname">pathogenseq.map_call_snps.</code><code class="descname">fastq</code><span class="sig-paren">(</span><em>r1</em>, <em>r2</em>, <em>ref_file</em>, <em>prefix</em>, <em>threads=20</em>, <em>platform='Illumina'</em>, <em>mapper='bwa'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.fastq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for performing mapping to reference.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -311,64 +368,40 @@
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A mapping class object</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pathogenseq.map_call_snps.mapping" title="pathogenseq.map_call_snps.mapping">mapping</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">mapping</p>
 </td>
 </tr>
 </tbody>
 </table>
 <dl class="attribute">
-<dt id="pathogenseq.map_call_snps.mapping.call_method">
-<code class="descname">call_method</code><em class="property"> = 'high'</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.call_method" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.call_method">
+<code class="descname">call_method</code><em class="property"> = 'high'</em><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.call_method" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pathogenseq.map_call_snps.mapping.call_snps">
-<code class="descname">call_snps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.call_snps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform SNP calling</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pathogenseq.map_call_snps.mapping.get_bam_qc">
-<code class="descname">get_bam_qc</code><span class="sig-paren">(</span><em>cov_thresholds=[1, 5, 10, 100]</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.get_bam_qc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a qc_bam object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cov_thresholds</strong> (<em>list</em>) – List of integers to use in the percentage genome covered calculation</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A qc_bam object</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pathogenseq.qc.qc_bam" title="pathogenseq.qc.qc_bam">qc_bam</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pathogenseq.map_call_snps.mapping.map">
-<code class="descname">map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.map" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.map">
+<code class="descname">map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform mapping</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pathogenseq.map_call_snps.mapping.mapper">
-<code class="descname">mapper</code><em class="property"> = 'bwa'</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.mapper" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.mapper">
+<code class="descname">mapper</code><em class="property"> = 'bwa'</em><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.mapper" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pathogenseq.map_call_snps.mapping.paired">
-<code class="descname">paired</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.paired" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.paired">
+<code class="descname">paired</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.paired" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pathogenseq.map_call_snps.mapping.params">
-<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.params" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pathogenseq.map_call_snps.mapping.trim">
-<code class="descname">trim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.mapping.trim" title="Permalink to this definition">¶</a></dt>
+<dt id="pathogenseq.map_call_snps.fastq.trim">
+<code class="descname">trim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.trim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform trimming</p>
 </dd></dl>
 
@@ -402,6 +435,9 @@
 
 </dd></dl>
 
+</div>
+<div class="section" id="module-pathogenseq.phylo">
+<span id="pathogenseq-phylo-module"></span><h2>pathogenseq.phylo module<a class="headerlink" href="#module-pathogenseq.phylo" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pathogenseq.qc">
 <span id="pathogenseq-qc-module"></span><h2>pathogenseq.qc module<a class="headerlink" href="#module-pathogenseq.qc" title="Permalink to this headline">¶</a></h2>
@@ -544,7 +580,7 @@
 
 <dl class="class">
 <dt id="pathogenseq.qc.qc_fastq">
-<em class="property">class </em><code class="descclassname">pathogenseq.qc.</code><code class="descname">qc_fastq</code><span class="sig-paren">(</span><em>prefix</em>, <em>fq1</em>, <em>fq2=None</em>, <em>optimise=True</em>, <em>threads=20</em>, <em>kraken_db=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pathogenseq.qc.</code><code class="descname">qc_fastq</code><span class="sig-paren">(</span><em>prefix</em>, <em>fq1</em>, <em>fq2=None</em>, <em>optimise=True</em>, <em>threads=20</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class to extract basic QC stats and run QC programs on fastQ files</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -575,6 +611,11 @@
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pathogenseq.qc.qc_fastq.kraken_run">
+<code class="descname">kraken_run</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.kraken_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pathogenseq.qc.qc_fastq.paired">
 <code class="descname">paired</code><em class="property"> = False</em><a class="headerlink" href="#pathogenseq.qc.qc_fastq.paired" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -596,7 +637,7 @@
 
 <dl class="method">
 <dt id="pathogenseq.qc.qc_fastq.run_kraken">
-<code class="descname">run_kraken</code><span class="sig-paren">(</span><em>filter_fastq=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq.run_kraken" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_kraken</code><span class="sig-paren">(</span><em>kraken_db</em>, <em>filter_fastq=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.qc.qc_fastq.run_kraken" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run kraken with an option to create filtered fastq files</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
