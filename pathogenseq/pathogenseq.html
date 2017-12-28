@@ -218,6 +218,11 @@
 <dd><p>Return total length of all sequences</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pathogenseq.fasta.fasta.write_philip">
+<code class="descname">write_philip</code><span class="sig-paren">(</span><em>out_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.fasta.fasta.write_philip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -302,10 +307,30 @@
 <dl class="class">
 <dt id="pathogenseq.map_call_snps.bam">
 <em class="property">class </em><code class="descclassname">pathogenseq.map_call_snps.</code><code class="descname">bam</code><span class="sig-paren">(</span><em>bam_file</em>, <em>prefix</em>, <em>ref_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>A class to perform operations on BAM files such as SNP calling</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bam_file</strong> (<em>str</em>) – The BAM file [required]</li>
+<li><strong>prefix</strong> (<em>str</em>) – A prefix for output files [required]</li>
+<li><strong>ref_file</strong> (<em>ref_file</em>) – A reference (needed by some methods)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A bam class object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pathogenseq.qc.qc_bam.bam" title="pathogenseq.qc.qc_bam.bam">bam</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
 <dt id="pathogenseq.map_call_snps.bam.call_snps">
-<code class="descname">call_snps</code><span class="sig-paren">(</span><em>ref_file=None</em>, <em>call_method='optimise'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam.call_snps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform SNP calling</p>
+<code class="descname">call_snps</code><span class="sig-paren">(</span><em>ref_file=None</em>, <em>call_method='optimise'</em>, <em>min_dp=10</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.bam.call_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a gVCF file (for a description see:https://sites.google.com/site/gvcftools/home/about-gvcf)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -313,6 +338,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>ref_file</strong> (<em>str</em>) – reference file (not required if passed to the bam initiator).</li>
 <li><strong>call_method</strong> (<em>str</em>) – optimise variant calling based on high or low depth. Options: high|low|optimise</li>
+<li><strong>min_dp</strong> (<em>int</em>) – Minimum depth required to group site into reference-block</li>
 </ul>
 </td>
 </tr>
@@ -379,6 +405,24 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="pathogenseq.map_call_snps.fastq.get_bam_qc">
+<code class="descname">get_bam_qc</code><span class="sig-paren">(</span><em>ref_file, cov_thresholds=[1, 5, 10, 20]</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.get_bam_qc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a qc_bam object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cov_thresholds</strong> (<em>list</em>) – List of integers to use in the percentage genome covered calculation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A qc_bam object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pathogenseq.qc.qc_bam" title="pathogenseq.qc.qc_bam">qc_bam</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pathogenseq.map_call_snps.fastq.map">
 <code class="descname">map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.map_call_snps.fastq.map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform mapping</p>
@@ -438,6 +482,21 @@
 </div>
 <div class="section" id="module-pathogenseq.phylo">
 <span id="pathogenseq-phylo-module"></span><h2>pathogenseq.phylo module<a class="headerlink" href="#module-pathogenseq.phylo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pathogenseq.phylo.phylo">
+<em class="property">class </em><code class="descclassname">pathogenseq.phylo.</code><code class="descname">phylo</code><span class="sig-paren">(</span><em>fa_file</em>, <em>prefix</em>, <em>threads=4</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.phylo.phylo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pathogenseq.phylo.phylo.examl">
+<code class="descname">examl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.phylo.phylo.examl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pathogenseq.phylo.phylo.params">
+<code class="descname">params</code><em class="property"> = {}</em><a class="headerlink" href="#pathogenseq.phylo.phylo.params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-pathogenseq.qc">
 <span id="pathogenseq-qc-module"></span><h2>pathogenseq.qc module<a class="headerlink" href="#module-pathogenseq.qc" title="Permalink to this headline">¶</a></h2>
@@ -661,7 +720,7 @@
 
 <dl class="class">
 <dt id="pathogenseq.vcf_merge.vcf_merge">
-<em class="property">class </em><code class="descclassname">pathogenseq.vcf_merge.</code><code class="descname">vcf_merge</code><span class="sig-paren">(</span><em>sample_file</em>, <em>ref_file</em>, <em>prefix</em>, <em>mappability_file=None</em>, <em>vcf_dir='.'</em>, <em>min_dp=10</em>, <em>fmiss=0.1</em>, <em>miss_cut=0.15</em>, <em>mix_cut=0.15</em>, <em>low_cov=False</em>, <em>bed_include=False</em>, <em>bed_exclude=False</em>, <em>threads=20</em>, <em>vcf_ext='vcf.gz'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pathogenseq.vcf_merge.</code><code class="descname">vcf_merge</code><span class="sig-paren">(</span><em>sample_file</em>, <em>ref_file</em>, <em>prefix</em>, <em>mappability_file=None</em>, <em>vcf_dir='.'</em>, <em>min_dp=10</em>, <em>fmiss=0.1</em>, <em>miss_cut=0.15</em>, <em>mix_cut=0.15</em>, <em>low_cov=False</em>, <em>bed_include=None</em>, <em>bed_exclude=None</em>, <em>threads=20</em>, <em>vcf_ext='vcf.gz'</em><span class="sig-paren">)</span><a class="headerlink" href="#pathogenseq.vcf_merge.vcf_merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class to manage the merging of gVCF files and subsequence filtering</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
