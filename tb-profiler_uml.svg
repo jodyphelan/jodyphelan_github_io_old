@@ -69,7 +69,7 @@
          id="g30"
          transform="matrix(7.874016e-5,0,0,-7.874016e-5,4.047638,108.5107)"><path
            d="M 0,106511 C 0,47686.62 47686.58,0 106511,0 h 1975402 c 58824,0 106511,47686.62 106511,106511 v 1111088 c 0,58824 -47687,106511 -106511,106511 H 106511 C 47686.58,1324110 0,1276423 0,1217599 Z"
-           style="fill:none;stroke:#2f5597;stroke-width:12700;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:8;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:none;stroke:#000000;stroke-width:12700;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:8;stroke-dasharray:none;stroke-opacity:1"
            id="path32"
            inkscape:connector-curvature="0" /></g><path
          d="m 182.3556,437.003 c 0,15.6671 12.7006,28.3678 28.3677,28.3678 h 756.0052 c 15.667,0 28.3677,-12.7007 28.3677,-28.3678 V 32.61776 c 0,-15.66707 -12.7007,-28.367742 -28.3677,-28.367742 H 210.7233 c -15.6671,0 -28.3677,12.700672 -28.3677,28.367742 z"
